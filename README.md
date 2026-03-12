@@ -4,6 +4,16 @@
 
 一个专为外贸从业者打造的命令行AI工具，让每个人都能拥有15年外贸老鸟的经验。
 
+## ⭐ 简介
+
+B2Btrade-agent 是一个**开箱即用的外贸AI助手**，旨在帮助外贸企业：
+- 🎯 快速挖掘目标客户
+- ✍️ 生成高回复率开发信
+- 📊 专业分析询盘与报价
+- 📈 获取市场情报
+
+不需要编程基础，会用命令行就能上手。
+
 ## ✨ 特性
 
 - **8位外贸专家** - 客户挖掘、内容创作、询盘处理、报价策略...
@@ -16,7 +26,7 @@
 ### 安装
 
 ```bash
-git clone https://github.com/yourusername/b2btrade-agent.git
+git clone https://github.com/meo9rhsan3492-cell/b2btrade-agent.git
 cd b2btrade-agent
 npm install
 ```
