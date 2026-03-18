@@ -8,6 +8,13 @@ import { listTools, searchCustomer, searchLinkedIn } from './tools/search.js';
 import { listWorkflows, workflowFindAndEmail, workflowRFQ, workflowMarketResearch } from './workflows/index.js';
 import { chatWithAI } from './ai.js';
 import { loadConfig, configureApiKey } from './config.js';
+import { initLogger, info, warn, error, logAction } from './utils/logger.js';
+import { recordChat, recordSearch, recordWorkflow, queryHistory, getRecent, cleanHistory, OperationType } from './utils/history.js';
+import { getLimiter, apiLimiter, getAllLimitersStatus } from './utils/rateLimiter.js';
+import { setLocale, getLocale, getSupportedLocales, t, SupportedLocales } from './utils/i18n.js';
+
+// 初始化日志系统
+initLogger();
 
 const VERSION = '1.0.0';
 
@@ -25,7 +32,7 @@ function showBanner() {
 ║     B2Btrade-agent v${VERSION}                                    ║
 ║     外贸B2B智能Agent - 开箱即用                                  ║
 ║                                                               ║
-║     🤖 13位外贸专家 | 🔧 工具集成 | ⚡ 工作流自动化              ║
+║     🤖 12位外贸专家 | 🔧 工具集成 | ⚡ 工作流自动化              ║
 ║                                                               ║
 ╚═══════════════════════════════════════════════════════════════╝
   `));
@@ -155,7 +162,7 @@ async function interactiveMode(initialAgentId) {
   const config = loadConfig();
   
   if (!config.apiKey) {
-    console.log(chalk.yellow('⚠️ 请先配置API Key\n'));
+    console.log(chalk.yellow('⚠️ API Key未配置，请先运行 b2b config 配置\n'));
     await configureApiKey();
   }
 

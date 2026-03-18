@@ -17,7 +17,13 @@ export function checkTools() {
   try {
     execSync('where agent-browser', { stdio: 'ignore' });
     tools['agent-browser'] = true;
-  } catch (e) {}
+  } catch (e) {
+    // Windows上where命令可能匹配.cmd文件，尝试带扩展名的检测
+    try {
+      execSync('where agent-browser.cmd', { stdio: 'ignore' });
+      tools['agent-browser'] = true;
+    } catch (e2) {}
+  }
 
   return tools;
 }

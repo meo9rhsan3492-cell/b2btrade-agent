@@ -3,6 +3,9 @@
  */
 import { getConfig } from './config.js';
 import { getAgent } from './agents/index.js';
+import { withRetry } from './utils/retry.js';
+import { info, error, warn } from './utils/logger.js';
+import { getProviderLimiter } from './utils/rateLimiter.js';
 
 const API_ENDPOINTS = {
   openai: 'https://api.openai.com/v1/chat/completions',
@@ -14,21 +17,24 @@ const API_ENDPOINTS = {
 export async function chatWithAI(userMessage, agentId = 'default') {
   const config = getConfig();
   const agent = getAgent(agentId);
-  
+
   const messages = [
     { role: 'system', content: agent.systemPrompt },
     { role: 'user', content: userMessage }
   ];
 
+  // 获取对应服务商的限流器
+  const limiter = getProviderLimiter(config.apiProvider);
+
   switch (config.apiProvider) {
     case 'openai':
-      return await callOpenAI(config, messages);
+      return await callOpenAI(config, messages, limiter);
     case 'anthropic':
-      return await callAnthropic(config, messages);
+      return await callAnthropic(config, messages, limiter);
     case 'google':
-      return await callGoogle(config, messages);
+      return await callGoogle(config, messages, limiter);
     case 'minimax':
-      return await callMinimax(config, messages);
+      return await callMinimax(config, messages, limiter);
     default:
       throw new Error(`未知API提供商: ${config.apiProvider}`);
   }
@@ -49,8 +55,8 @@ async function callOpenAI(config, messages) {
   });
 
   if (!response.ok) {
-    const err = await response.text();
-    throw new Error(`OpenAI错误: ${response.status}`);
+    const errText = await response.text();
+    throw new Error(`OpenAI错误: ${response.status} - ${errText}`);
   }
 
   const data = await response.json();
@@ -79,8 +85,8 @@ async function callAnthropic(config, messages) {
   });
 
   if (!response.ok) {
-    const err = await response.text();
-    throw new Error(`Anthropic错误: ${response.status}`);
+    const errText = await response.text();
+    throw new Error(`Anthropic错误: ${response.status} - ${errText}`);
   }
 
   const data = await response.json();
@@ -103,7 +109,8 @@ async function callGoogle(config, messages) {
   });
 
   if (!response.ok) {
-    throw new Error(`Google错误: ${response.status}`);
+    const errText = await response.text();
+    throw new Error(`Google错误: ${response.status} - ${errText}`);
   }
 
   const data = await response.json();
@@ -125,7 +132,8 @@ async function callMinimax(config, messages) {
   });
 
   if (!response.ok) {
-    throw new Error(`Minimax错误: ${response.status}`);
+    const errText = await response.text();
+    throw new Error(`Minimax错误: ${response.status} - ${errText}`);
   }
 
   const data = await response.json();
