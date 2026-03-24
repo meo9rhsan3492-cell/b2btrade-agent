@@ -1,15 +1,29 @@
-# 依赖
+# Dependencies
 node_modules/
 
-# 配置（包含API Key）
+# Environment
 .env
 .env.local
-*.json
+.env.*.local
 
-# 日志
+# Logs
 *.log
 npm-debug.log*
 
-# 系统文件
+# OS
 .DS_Store
 Thumbs.db
+
+# Build output
+dist/
+build/
+
+# Test coverage
+coverage/
+
+# Temporary files
+*.tmp
+*.temp
+
+# Package lock (use npm ci for reproducible installs)
+package-lock.json
