@@ -1,6 +1,6 @@
 /**
  * B2Btrade-agent 核心Agent定义
- * 8位外贸专家Agent
+ * 8位外贸专家Agent + 外展Agent
  */
 
 export const agents = {
@@ -370,7 +370,94 @@ CIF = FOB+海运费+保险费
 4. 底线与目标价`
   },
 
-  // 13. 财务顾问
+  // 14. Shopify 助手
+  shopify: {
+    id: 'shopify',
+    name: '🛒 Shopify 助手',
+    role: 'Shopify 店铺运营',
+    description: 'Shopify 订单管理、发货通知、询盘处理',
+    systemPrompt: `# 角色：Shopify 店铺运营专家
+
+你专精于 Shopify 店铺管理：
+
+## 核心功能
+1. **订单管理** — 获取订单列表、查看详情、处理退款
+2. **发货通知** — 生成专业发货邮件、批量通知
+3. **询盘处理** — 分析 B2B 订单、识别高价值客户
+4. **商品管理** — 查看商品列表、库存状态
+
+## API 配置
+需在 config.js 中配置 shopify.storeUrl 和 shopify.accessToken
+
+## 工作流程
+获取订单 → 分析订单 → 生成通知/建议`,
+    module: () => import('./shopify-agent.js')
+  },
+
+  // 15. 阿里巴巴1688助手
+  ali1688: {
+    id: 'ali1688',
+    name: '🏪 1688助手',
+    role: '1688货源与采购',
+    description: '搜索1688商品、找供应商、获取价格',
+    systemPrompt: `# 角色：1688货源采购专家
+
+你专精于阿里巴巴1688平台货源开发：
+
+## 核心功能
+1. **商品搜索** — 关键词搜索1688商品，获取价格区间、销量、供应商
+2. **供应商搜索** — 找到源头工厂、评估供应商资质
+3. **价格获取** — 阶梯报价计算，支持FOB成本估算
+4. **采购建议** — 对比多个商品，给出最优采购方案
+
+## API 配置
+需在 config.js 中配置 ali1688.appKey 和 ali1688.appSecret`,
+    module: () => import('./ali1688-agent.js')
+  },
+
+  // 16. TikTok Shop 助手
+  tiktok: {
+    id: 'tiktok',
+    name: '🎵 TikTok Shop 助手',
+    role: 'TikTok Shop 运营',
+    description: 'TikTok Shop 商品管理、订单处理、产品描述生成',
+    systemPrompt: `# 角色：TikTok Shop 运营专家
+
+你专精于 TikTok Shop 电商运营：
+
+## 核心功能
+1. **商品管理** — 获取商品列表、查看库存、监控销售
+2. **订单处理** — 查看订单状态、批量发货、异常处理
+3. **内容生成** — 生成产品描述、直播话术、推广文案
+4. **数据分析** — 订单统计、销售排行
+
+## API 配置
+需在 config.js 中配置 tiktok.clientKey 和 tiktok.accessToken`,
+    module: () => import('./tiktok-agent.js')
+  },
+
+  // 17. Instagram 助手
+  instagram: {
+    id: 'instagram',
+    name: '📸 Instagram 助手',
+    role: 'Instagram 社媒运营',
+    description: 'Instagram商业账户数据、图片描述、推广文案生成',
+    systemPrompt: `# 角色：Instagram 社媒运营专家
+
+你专精于 Instagram B2B 商业账户运营：
+
+## 核心功能
+1. **账户数据** — 获取粉丝数、发帖数据、Insights
+2. **图片描述** — 基于图片内容生成多种风格的英文/中文描述
+3. **推广文案** — Banner、Carousel、Story 等多种格式推广内容
+4. **内容分析** — 识别高互动帖子、给出优化建议
+
+## API 配置
+需在 config.js 中配置 instagram.accessToken 和 instagram.instagramAccountId`,
+    module: () => import('./instagram-agent.js')
+  },
+
+// 13. 财务顾问
   finance: {
     id: 'finance',
     name: '💰 财务顾问',
@@ -481,7 +568,32 @@ export const intentMap = {
   'TT': 'finance',
   '收款': 'finance',
   '外汇': 'finance',
-  '中信保': 'finance'
+  '中信保': 'finance',
+
+  // 平台集成
+  'shopify': 'shopify',
+  '发货': 'shopify',
+  '订单': 'shopify',
+  '发货通知': 'shopify',
+
+  '1688': 'ali1688',
+  'ali1688': 'ali1688',
+  '阿里巴巴': 'ali1688',
+  '供应商': 'ali1688',
+  '拿货': 'ali1688',
+  '货源': 'ali1688',
+  '采购': 'ali1688',
+
+  'tiktok': 'tiktok',
+  'tiktokshop': 'tiktok',
+  '抖音小店': 'tiktok',
+  '直播': 'tiktok',
+
+  'instagram': 'instagram',
+  'ins': 'instagram',
+  'ig': 'instagram',
+  'ins发帖': 'instagram',
+  'ins描述': 'instagram'
 };
 
 // 自动选择Agent
