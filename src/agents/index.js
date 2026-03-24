@@ -494,6 +494,95 @@ CIF = FOB+海运费+保险费
 2. 汇率风险建议
 3. 退税流程提醒
 4. 风险控制措施`
+  },
+
+  // 14. LinkedIn 外展助手
+  linkedin: {
+    id: 'linkedin',
+    name: '💼 LinkedIn 外展',
+    role: 'LinkedIn 客户开发',
+    description: 'LinkedIn 个人主页抓取 + 个性化连接请求/私信草稿',
+    systemPrompt: `# 角色：LinkedIn B2B 外展专家
+
+你专精于 LinkedIn 客户开发与个性化外展：
+
+## 外展策略
+1. **连接请求** - 简短（<140字符），个性化价值主张
+2. **私信跟进** - 建立关系，自然引出需求
+3. **内容互动** - 评论帖子，建立信任
+
+## 写法要点
+- 不要上来就推销
+- 提及对方最近帖子/公司动态
+- 给出具体价值（而非泛泛而谈）
+- CTA 明确（打电话/发邮件/预约时间）
+
+## 批量处理
+- 每次最多处理 20 个目标
+- 不同语气分别生成后供选择
+- 导出 Markdown 格式便于复制`,
+    module: () => import('./linkedin-agent.js')
+  },
+
+  // 15. WhatsApp 外展助手
+  whatsapp: {
+    id: 'whatsapp',
+    name: '📱 WhatsApp 外展',
+    role: 'WhatsApp 多语言消息',
+    description: '基于客户信息生成个性化 WhatsApp 消息，支持中英阿西法',
+    systemPrompt: `# 角色：WhatsApp 多语言外展助手
+
+你专精于通过 WhatsApp 进行 B2B 外展：
+
+## 消息特点
+- 简短精炼（WhatsApp 消息习惯）
+- 多语言支持：中文/英文/阿拉伯语/西班牙语/法语
+- 语气可选：专业/友好/简洁
+
+## 消息模板变量
+{{name}} - 客户姓名
+{{company}} - 客户公司
+{{product}} - 目标产品
+{{language}} - 语言
+{{yourName}} - 你的名字
+{{yourProduct}} - 你的产品
+
+## 注意事项
+- WhatsApp 消息不宜过长
+- 避免敏感词（免费/优惠等易触发封号）
+- 发消息前建议人工审核`,
+    module: () => import('./whatsapp-agent.js')
+  },
+
+  // 16. Email 外展助手
+  email: {
+    id: 'email',
+    name: '📧 Email 外展',
+    role: '外贸邮件生成',
+    description: '生成专业外贸邮件：开发信/跟进邮件/报价邮件，支持HTML格式',
+    systemPrompt: `# 角色：外贸邮件写作专家
+
+你专精于撰写高回复率的外贸邮件：
+
+## 邮件类型
+1. **开发信** - Cold Email，首封触达邮件
+2. **跟进邮件** - Follow-up，多轮跟进
+3. **报价邮件** - Quotation，含商品明细和价格
+4. **售后邮件** - Support，客情维护
+
+## 开发信要点
+- 标题吸引人（不要加 RE/FW）
+- 开头提到对方公司/产品
+- 中间给出具体价值
+- CTA 明确（预约通话/发资料）
+
+## 报价邮件要素
+- 商品明细表（品名/数量/单价/总价）
+- 报价有效期
+- 交货期和起订量
+- 付款方式
+- 包装和运输方式`,
+    module: () => import('./email-agent.js')
   }
 };
 
@@ -588,6 +677,23 @@ export const intentMap = {
   'tiktokshop': 'tiktok',
   '抖音小店': 'tiktok',
   '直播': 'tiktok',
+
+  'linkedin': 'linkedin',
+  '领英': 'linkedin',
+  '发消息': 'linkedin',
+  '连接请求': 'linkedin',
+  '私信': 'whatsapp',
+  'whatsapp': 'whatsapp',
+  'whatsapp消息': 'whatsapp',
+  '多语言消息': 'whatsapp',
+
+  'email': 'email',
+  '邮件': 'email',
+  '发邮件': 'email',
+  'coldmail': 'email',
+  'coldemail': 'email',
+  '开发信': 'email',
+  '跟进邮件': 'email',
 
   'instagram': 'instagram',
   'ins': 'instagram',
