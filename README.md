@@ -10,6 +10,7 @@
 [![npm version](https://img.shields.io/npm/v/b2btrade-agent?style=flat-square)](https://www.npmjs.com/package/b2btrade-agent)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
 [![Node.js >=18](https://img.shields.io/badge/Node.js-%3E%3D18-green?style=flat-square)](https://nodejs.org/)
+[![CI](https://github.com/meo9rhsan3492-cell/b2btrade-agent/actions/workflows/ci.yml/badge.svg)](https://github.com/meo9rhsan3492-cell/b2btrade-agent/actions/workflows/ci.yml)
 
 ---
 
