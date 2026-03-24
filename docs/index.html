@@ -10,7 +10,7 @@
 :root{--bg:#0a0e17;--bg2:#111827;--bg3:#1a2235;--accent:#00d4ff;--accent2:#7c3aed;--accent-glow:rgba(0,212,255,0.3);--text:#e2e8f0;--text-dim:#64748b;--border:#1e293b;--success:#10b981}
 html{scroll-behavior:smooth}
 body{font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;cursor:none}
-#cursor{position:fixed;width:20px;height:20px;border-radius:50%;background:radial-gradient(circle,rgba(0,212,255,0.9) 0%,rgba(0,212,255,0)70%);pointer-events:none;z-index:9999;transform:translate(-50%,-50%);mix-blend-mode:screen}
+#cursor{position:fixed;width:28px;height:28px;border-radius:50%;background:radial-gradient(circle,rgba(0,212,255,1) 0%,rgba(0,212,255,0)70%);pointer-events:none;z-index:9999;transform:translate(-50%,-50%);mix-blend-mode:screen;box-shadow:0 0 20px rgba(0,212,255,0.6),0 0 40px rgba(0,212,255,0.3)}
 nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1rem 2rem;display:flex;justify-content:space-between;align-items:center;background:rgba(10,14,23,0.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
 .nav-logo{font-family:JetBrains Mono,monospace;font-weight:700;font-size:1.1rem;color:var(--accent);letter-spacing:-0.5px}
 .nav-logo span{color:var(--text)}
@@ -258,13 +258,23 @@ footer{border-top:1px solid var(--border);padding:2.5rem;display:flex;justify-co
   var mx=0, my=0, cx=0, cy=0;
   document.addEventListener('mousemove', function(e){ mx=e.clientX; my=e.clientY; });
   function loop(){
-    cx += (mx-cx)*0.16;
-    cy += (my-cy)*0.16;
+    cx += (mx-cx)*0.55;
+    cy += (my-cy)*0.55;
     cursor.style.left = cx+'px';
     cursor.style.top  = cy+'px';
     requestAnimationFrame(loop);
   }
   loop();
+  // Add glow ring on click
+  document.addEventListener('mousedown', function(e){
+    var ring = document.createElement('div');
+    ring.style.cssText = 'position:fixed;width:40px;height:40px;border-radius:50%;border:2px solid rgba(0,212,255,0.8);pointer-events:none;z-index:9998;transform:translate(-50%,-50%) scale(0);opacity:1;transition:transform 0.4s ease-out,opacity 0.4s ease-out';
+    ring.style.left = e.clientX+'px';
+    ring.style.top  = e.clientY+'px';
+    document.body.appendChild(ring);
+    requestAnimationFrame(function(){ ring.style.transform='translate(-50%,-50%) scale(1.5)'; ring.style.opacity='0'; });
+    setTimeout(function(){ ring.remove(); }, 400);
+  });
 })();
 
 // Scroll reveal
