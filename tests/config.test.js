@@ -13,6 +13,10 @@ describe('配置管理模块', () => {
   const originalConfigFile = process.env.B2BTRADE_CONFIG_FILE;
 
   beforeAll(() => {
+    // 清理残留文件，确保测试隔离
+    if (fs.existsSync(TEST_CONFIG_FILE)) {
+      fs.unlinkSync(TEST_CONFIG_FILE);
+    }
     process.env.B2BTRADE_CONFIG_FILE = TEST_CONFIG_FILE;
   });
 

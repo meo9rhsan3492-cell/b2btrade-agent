@@ -7,7 +7,9 @@ import os from 'os';
 import inquirer from 'inquirer';
 import chalk from 'chalk';
 
-const CONFIG_FILE = path.join(os.homedir(), '.b2btrade-agent.json');
+function getConfigFile() {
+  return process.env.B2BTRADE_CONFIG_FILE || path.join(os.homedir(), '.b2btrade-agent.json');
+}
 
 const defaultConfig = {
   apiProvider: 'openai',
@@ -125,8 +127,8 @@ const defaultConfig = {
 
 export function loadConfig() {
   try {
-    if (fs.existsSync(CONFIG_FILE)) {
-      const data = fs.readFileSync(CONFIG_FILE, 'utf8');
+    if (fs.existsSync(getConfigFile())) {
+      const data = fs.readFileSync(getConfigFile(), 'utf8');
       return { ...defaultConfig, ...JSON.parse(data) };
     }
   } catch (e) {
@@ -141,7 +143,7 @@ export function getConfig() {
 
 export function saveConfig(config) {
   try {
-    fs.writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2));
+    fs.writeFileSync(getConfigFile(), JSON.stringify(config, null, 2));
     return true;
   } catch (e) {
     console.error('保存配置失败:', e.message);

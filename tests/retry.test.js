@@ -24,7 +24,7 @@ function isRetryable(error, retryableCodes = []) {
     return retryableCodes.includes(error.status || error.statusCode);
   }
   const message = error.message || '';
-  if (message.includes('timeout') || message.includes('rate limit')) {
+  if (message.toLowerCase().includes('timeout') || message.toLowerCase().includes('rate limit')) {
     return true;
   }
   return false;

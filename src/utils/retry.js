@@ -188,7 +188,7 @@ function isRetryable(error, retryableCodes = []) {
 
   // 检查错误消息
   const message = error.message || '';
-  if (message.includes('timeout') || message.includes('rate limit')) {
+  if (message.toLowerCase().includes('timeout') || message.toLowerCase().includes('rate limit')) {
     return true;
   }
 
