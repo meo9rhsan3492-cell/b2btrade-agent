@@ -155,7 +155,7 @@ export async function searchCustomsData(country, product) {
 }
 
 // ===== 演示数据（搜索无结果时的降级）=====
-function getDemoResults(country, product) {
+export function getDemoResults(country, product) {
   const demos = {
     '沙特': [
       { rank: 1, name: 'Almatar for Drilling & Water Well Co.', url: 'https://www.almatar.com.sa', snippet: '专业钻井公司，长期采购钻机设备', source: '演示数据' },

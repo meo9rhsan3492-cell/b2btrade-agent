@@ -8,7 +8,11 @@ import os from 'os';
 import { fileURLToPath } from 'url';
 import inquirer from 'inquirer';
 import chalk from 'chalk';
-import { dotenv } from 'dotenv';
+// dotenv auto-load .env
+try {
+  const dotenv = await import('dotenv');
+  dotenv.default.config({ path: envPath });
+} catch { /* ignore */ }
 
 // 加载 .env（项目根目录）
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
