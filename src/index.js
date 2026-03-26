@@ -3,9 +3,12 @@
  * 外贸B2B智能Agent
  */
 import chalk from 'chalk';
+import { homedir } from 'os';
+import { existsSync, readFileSync, readdirSync, statSync } from 'fs';
+import { join } from 'path';
 import { agents, selectAgent, listAgents, getAgent } from './agents/index.js';
 import { listTools, searchCustomer, searchLinkedIn } from './tools/search.js';
-import { listWorkflows, workflowFindAndEmail, workflowRFQ, workflowMarketResearch } from './workflows/index.js';
+import { listWorkflows, workflowFindAndEmail, workflowRFQ, workflowMarketResearch, workflowCompetitorMonitor } from './workflows/index.js';
 import { chatWithAI } from './ai.js';
 import { loadConfig, configureApiKey } from './config.js';
 import { initLogger, info, warn, error, logAction } from './utils/logger.js';
@@ -52,6 +55,7 @@ function showHelp() {
   search <query>    搜索客户
   tools             查看可用工具
   config            配置API Key
+  status            查看运行状态
   help              显示帮助
 
 示例:
@@ -59,6 +63,8 @@ function showHelp() {
   b2b chat content             # 与内容专家对话
   b2b list                     # 查看所有Agent
   b2b run find-email           # 执行客户挖掘工作流
+  b2b run competitor 三一重工 钻机  # 竞品监控
+  b2b status                   # 查看状态统计
   b2b search 沙特 钻机         # 搜索客户
 
 快速开始:
@@ -149,6 +155,10 @@ async function main() {
 
     case 'config':
       await configureApiKey();
+      break;
+
+    case 'status':
+      showStatus();
       break;
 
     default:
@@ -305,10 +315,78 @@ async function runWorkflow(wfId, params) {
       const mProduct = params[1] || '钻机';
       await workflowMarketResearch(mCountry, mProduct, aiChat);
       break;
-      
+
+    case 'competitor':
+      const compName = params[0] || '';
+      const compProduct = params[1] || '';
+      if (!compName || !compProduct) {
+        console.log(chalk.red('请提供竞品名称和产品：b2b run competitor 竞品名称 产品'));
+        return;
+      }
+      await workflowCompetitorMonitor(compName, compProduct, aiChat);
+      break;
+
     default:
       console.log(chalk.red(`未知工作流: ${wfId}`));
   }
+}
+
+// 状态显示
+function showStatus() {
+  const config = loadConfig();
+  const outputDir = join(homedir(), '.b2btrade-agent', 'output');
+
+  console.log(chalk.bold('\n📊 B2Btrade Agent 状态\n'));
+
+  // 配置状态
+  console.log(chalk.cyan('⚙️  配置'));
+  console.log(`   Provider:  ${config.apiProvider || 'openai'}`);
+  console.log(`   Model:     ${config.model || '(默认)'}`);
+  console.log(`   API Key:   ${config.apiKey ? '✅ 已配置' : '❌ 未配置'}`);
+  console.log(`   Locale:    ${config.locale || 'zh'}`);
+
+  // 限流状态
+  const limiterStatus = getAllLimitersStatus();
+  if (limiterStatus.length > 0) {
+    console.log(chalk.cyan('\n🚦 限流器'));
+    limiterStatus.forEach(l => {
+      const pct = Math.round((l.tokens / l.limit) * 100);
+      const color = pct > 60 ? chalk.green : pct > 30 ? chalk.yellow : chalk.red;
+      console.log(`   ${l.name.padEnd(12)} ${color(`${l.tokens}/${l.limit} (${pct}%)`)}  总请求: ${l.stats.total}  等待: ${l.queueLength}`);
+    });
+  }
+
+  // 输出文件统计
+  if (existsSync(outputDir)) {
+    const files = readdirSync(outputDir).filter(f => f.endsWith('.md'));
+    const today = new Date().toISOString().slice(0, 10);
+    const todayFiles = files.filter(f => f.includes(today));
+    const totalSize = files.reduce((sum, f) => {
+      try { return sum + statSync(join(outputDir, f)).size; } catch { return sum; }
+    }, 0);
+
+    console.log(chalk.cyan('\n📁 输出文件'));
+    console.log(`   今日:      ${todayFiles.length} 个`);
+    console.log(`   总计:      ${files.length} 个`);
+    console.log(`   总大小:    ${(totalSize / 1024).toFixed(1)} KB`);
+    if (files.length > 0) {
+      console.log(chalk.gray('\n   最近文件:'));
+      files.slice(-3).reverse().forEach(f => {
+        console.log(chalk.gray(`   - ${f}`));
+      });
+    }
+  } else {
+    console.log(chalk.cyan('\n📁 输出文件'));
+    console.log(chalk.gray('   暂无输出文件'));
+  }
+
+  // Agent 数量
+  console.log(chalk.cyan('\n🤖 Agent'));
+  const agentCount = Object.keys(agents).length;
+  console.log(`   已注册:    ${agentCount} 个`);
+  console.log(`   工作流:    ${listWorkflows().length} 个`);
+
+  console.log();
 }
 
 main().catch(console.error);

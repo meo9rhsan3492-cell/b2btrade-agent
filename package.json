@@ -1,6 +1,6 @@
 {
   "name": "b2btrade-agent",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "外贸B2B智能Agent - 开箱即用的外贸AI助手",
   "main": "src/index.js",
   "type": "module",
@@ -11,10 +11,12 @@
     "start": "node src/index.js",
     "chat": "node src/index.js chat",
     "search": "node src/tools/search.js",
-    "config": "node src/config.js",
+    "config": "node src/index.js config",
+    "status": "node src/index.js status",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
-    "lint": "eslint src/ tests/"
+    "lint": "eslint src/ tests/",
+    "pub": "npm publish --access public"
   },
   "jest": {
     "testEnvironment": "node",
@@ -24,7 +26,7 @@
     "collectCoverageFrom": ["src/**/*.js"],
     "verbose": true
   },
-  "keywords": ["b2b", "trade", "ai", "agent", "foreign-trade", "marketing"],
+  "keywords": ["b2b", "trade", "ai", "agent", "foreign-trade", "export", "crm", "linkedin", "whatsapp"],
   "author": "EdoStra <meo9rhsan3492-cell@users.noreply.github.com>",
   "license": "MIT",
   "dependencies": {
@@ -35,14 +37,6 @@
   },
   "devDependencies": {
     "jest": "^29.7.0"
-  },
-  "jest": {
-    "testEnvironment": "node",
-    "transform": {},
-    "moduleFileExtensions": ["js", "mjs"],
-    "testMatch": ["**/tests/**/*.test.js"],
-    "collectCoverageFrom": ["src/**/*.js"],
-    "verbose": true
   },
   "engines": {
     "node": ">=18.0.0"
