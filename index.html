@@ -3,371 +3,393 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>B2Btrade Agent - 在线演示</title>
+<title>B2Btrade Agent - 外贸AI助手在线演示</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0a0a0f; color: #e0e0e0; min-height: 100vh; }
-  .container { max-width: 900px; margin: 0 auto; padding: 2rem 1rem; }
+  .container { max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem; }
 
-  /* Header */
-  .header { text-align: center; margin-bottom: 3rem; }
+  .header { text-align: center; margin-bottom: 2.5rem; }
   .header h1 { font-size: 2rem; font-weight: 700; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-  .header p { color: #888; margin-top: 0.5rem; font-size: 1rem; }
-  .header .badge { display: inline-block; background: rgba(102, 126, 234, 0.15); border: 1px solid rgba(102, 126, 234, 0.3); color: #667eea; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; margin-top: 1rem; }
+  .header p { color: #888; margin-top: 0.5rem; }
+  .badge { display: inline-block; background: rgba(102,126,234,0.15); border: 1px solid rgba(102,126,234,0.3); color: #667eea; padding: 4px 14px; border-radius: 20px; font-size: 0.75rem; margin-top: 0.75rem; }
 
-  /* Terminal */
-  .terminal-wrap { background: #111; border-radius: 12px; border: 1px solid #222; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
-  .term-bar { background: #1a1a2e; padding: 10px 16px; display: flex; align-items: center; gap: 6px; }
+  .terminal-wrap { background: #0d1117; border-radius: 12px; border: 1px solid #21262d; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.6); }
+  .term-bar { background: #161b22; padding: 10px 16px; display: flex; align-items: center; gap: 6px; border-bottom: 1px solid #21262d; }
   .term-dot { width: 12px; height: 12px; border-radius: 50%; }
   .dot-red { background: #ff5f57; }
   .dot-yellow { background: #febc2e; }
   .dot-green { background: #28c840; }
   .term-title { color: #666; font-size: 0.8rem; margin-left: 8px; }
-  .term-body { padding: 1.5rem; min-height: 300px; font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace; font-size: 0.85rem; line-height: 1.6; white-space: pre-wrap; }
 
-  /* Scenario buttons */
-  .scenarios { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; margin: 1.5rem 0; }
-  .scenario-btn { background: #1a1a2e; border: 1px solid #333; color: #e0e0e0; padding: 12px 16px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; transition: all 0.2s; text-align: left; }
-  .scenario-btn:hover { border-color: #667eea; background: #1e1e3a; transform: translateY(-1px); }
-  .scenario-btn.active { border-color: #667eea; background: rgba(102, 126, 234, 0.15); color: #667eea; }
-  .scenario-btn .icon { font-size: 1.1rem; margin-right: 6px; }
-  .scenario-btn .desc { font-size: 0.7rem; color: #666; margin-top: 2px; }
+  /* Tab buttons */
+  .tabs { display: flex; gap: 2px; padding: 12px 16px 0; background: #0d1117; border-bottom: 1px solid #21262d; flex-wrap: wrap; }
+  .tab-btn { background: transparent; border: 1px solid transparent; color: #666; padding: 8px 14px; border-radius: 6px 6px 0 0; cursor: pointer; font-size: 0.8rem; transition: all 0.2s; border-bottom: 2px solid transparent; }
+  .tab-btn:hover { color: #e0e0e0; background: #161b22; }
+  .tab-btn.active { color: #667eea; background: #0d1117; border-color: #21262d; border-bottom-color: #667eea; }
 
-  /* Features */
-  .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 2rem 0; }
-  .feature-card { background: #111827; border: 1px solid #1f2937; border-radius: 10px; padding: 16px; }
-  .feature-card .f-icon { font-size: 1.5rem; margin-bottom: 8px; }
-  .feature-card h3 { font-size: 0.9rem; margin-bottom: 4px; }
-  .feature-card p { font-size: 0.75rem; color: #666; }
+  .term-body { padding: 1.5rem; min-height: 340px; font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace; font-size: 0.82rem; line-height: 1.65; white-space: pre-wrap; }
+
+  /* Product pills */
+  .product-pills { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+  .pill { background: #1c2128; border: 1px solid #30363d; color: #8b949e; padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; cursor: pointer; transition: all 0.2s; }
+  .pill:hover { border-color: #667eea; color: #667eea; }
+  .pill.active { background: rgba(102,126,234,0.15); border-color: #667eea; color: #667eea; }
+
+  /* Result panel */
+  .result-panel { background: #010409; border: 1px solid #21262d; border-radius: 8px; padding: 14px; margin-top: 12px; white-space: pre-wrap; font-size: 0.78rem; line-height: 1.6; }
 
   /* CTA */
-  .cta { text-align: center; margin: 3rem 0; }
-  .cta-btn { display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.95rem; transition: transform 0.2s; }
-  .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4); }
-  .cta .sub { color: #666; font-size: 0.8rem; margin-top: 8px; }
+  .cta { text-align: center; margin: 2.5rem 0; }
+  .cta-btn { display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 13px 30px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.95rem; transition: transform 0.2s, box-shadow 0.2s; }
+  .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(102,126,234,0.4); }
+  .cta .sub { color: #555; font-size: 0.78rem; margin-top: 8px; }
 
-  /* Animation */
-  .typing-cursor { display: inline-block; width: 8px; height: 14px; background: #667eea; margin-left: 2px; animation: blink 1s step-end infinite; vertical-align: middle; }
-  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
-  .fade-in { animation: fadeIn 0.5s ease-out; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-  /* Footer */
-  .footer { text-align: center; color: #444; font-size: 0.75rem; margin-top: 3rem; border-top: 1px solid #1a1a1a; padding-top: 1.5rem; }
+  .footer { text-align: center; color: #444; font-size: 0.75rem; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #1a1a1a; }
   .footer a { color: #667eea; text-decoration: none; }
+
+  .section-label { color: #667eea; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .result-title { color: #28c840; font-weight: 600; margin-bottom: 10px; }
+  .tag { display: inline-block; background: rgba(88,166,255,0.12); color: #58a6ff; padding: 2px 8px; border-radius: 4px; font-size: 0.68rem; margin-right: 4px; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+  .fade-in { animation: fadeIn 0.4s ease-out; }
+
+  /* Quick stats */
+  .quick-stats { display: flex; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; }
+  .stat { background: #1c2128; border: 1px solid #30363d; border-radius: 8px; padding: 10px 16px; flex: 1; min-width: 100px; }
+  .stat .num { font-size: 1.3rem; font-weight: 700; color: #667eea; }
+  .stat .label { font-size: 0.7rem; color: #666; margin-top: 2px; }
 </style>
 </head>
 <body>
 <div class="container">
 
-  <!-- Header -->
   <div class="header fade-in">
     <h1>B2Btrade Agent</h1>
-    <p>外贸B2B智能助手 — AI驱动客户挖掘、跟进、报价全流程</p>
-    <span class="badge">🔥 无需安装，直接体验</span>
+    <p>外贸B2B智能助手 · AI驱动客户挖掘 · 跟进 · 报价全流程</p>
+    <span class="badge">🖥️ 在线演示 · 无需安装</span>
   </div>
 
-  <!-- Demo Terminal -->
   <div class="terminal-wrap fade-in">
     <div class="term-bar">
       <div class="term-dot dot-red"></div>
       <div class="term-dot dot-yellow"></div>
       <div class="term-dot dot-green"></div>
-      <span class="term-title">b2b demo — bash</span>
+      <span class="term-title">b2btrade-agent — interactive demo</span>
     </div>
 
-    <!-- Scenario selector -->
-    <div class="scenarios" style="padding: 0 1.5rem; margin: 0;">
-      <button class="scenario-btn active" onclick="showScenario(0, this)">
-        <span class="icon">🔍</span>客户挖掘
-        <div class="desc">找到目标采购商</div>
-      </button>
-      <button class="scenario-btn" onclick="showScenario(1, this)">
-        <span class="icon">📋</span>询盘分析
-        <div class="desc">报价策略建议</div>
-      </button>
-      <button class="scenario-btn" onclick="showScenario(2, this)">
-        <span class="icon">📧</span>邮件序列
-        <div class="desc">自动跟进触达</div>
-      </button>
-      <button class="scenario-btn" onclick="showScenario(3, this)">
-        <span class="icon">👥</span>CRM管理
-        <div class="desc">客户关系追踪</div>
-      </button>
-      <button class="scenario-btn" onclick="showScenario(4, this)">
-        <span class="icon">📦</span>展会管理
-        <div class="desc">展前展后全流程</div>
-      </button>
+    <!-- Tab buttons -->
+    <div class="tabs">
+      <button class="tab-btn active" onclick="showTab(0, this)">🔍 客户挖掘</button>
+      <button class="tab-btn" onclick="showTab(1, this)">📋 询盘报价</button>
+      <button class="tab-btn" onclick="showTab(2, this)">📧 开发信</button>
+      <button class="tab-btn" onclick="showTab(3, this)">👥 CRM管理</button>
+      <button class="tab-btn" onclick="showTab(4, this)">🏛️ 展会获客</button>
     </div>
 
-    <!-- Terminal output -->
-    <div class="term-body" id="term-output"></div>
+    <!-- Tab content -->
+    <div class="term-body" id="tab-content"></div>
   </div>
 
-  <!-- Features -->
-  <div class="features fade-in">
-    <div class="feature-card">
-      <div class="f-icon">🛡️</div>
-      <h3>合规筛查</h3>
-      <p>OFAC/BIS制裁名单实时预警，高风险国家自动识别</p>
-    </div>
-    <div class="feature-card">
-      <div class="f-icon">💰</div>
-      <h3>精准报价</h3>
-      <p>HS编码查询 + Incoterms成本计算 + 专业PI报价单</p>
-    </div>
-    <div class="feature-card">
-      <div class="f-icon">🤖</div>
-      <h3>19个专家Agent</h3>
-      <p>覆盖外贸全流程：销售/物流/报关/谈判/财务</p>
-    </div>
-    <div class="feature-card">
-      <div class="f-icon">🌐</div>
-      <h3>多语言支持</h3>
-      <p>中文/英文/阿拉伯语/西班牙语/法语</p>
-    </div>
+  <div class="cta">
+    <a href="https://github.com/meo9rhsan3492-cell/b2btrade-agent" class="cta-btn" target="_blank">🚀 立即安装使用</a>
+    <div class="sub">npm install b2btrade-agent · 支持 Claude/GPT/Gemini/MiniMax</div>
   </div>
 
-  <!-- CTA -->
-  <div class="cta fade-in">
-    <a href="https://github.com/meo9rhsan3492-cell/b2btrade-agent" class="cta-btn" target="_blank">🚀 立即开始使用</a>
-    <div class="sub">npm install b2btrade-agent · 3步配置 · 5分钟上手</div>
-  </div>
-
-  <!-- Footer -->
   <div class="footer">
     <a href="https://github.com/meo9rhsan3492-cell/b2btrade-agent">GitHub</a> ·
     <a href="https://github.com/meo9rhsan3492-cell/b2btrade-agent/blob/main/CHANGELOG.md">更新日志</a> ·
     v1.1.0 · MIT License
   </div>
-
 </div>
 
 <script>
-const scenarios = [
+const TAB_DATA = [
   {
-    name: '🔍 客户挖掘 → 开发信',
+    label: '🔍 客户挖掘',
+    icon: '🔍',
+    desc: '输入产品和目标市场，AI自动找到真实采购商',
     steps: [
-      '🔍 正在搜索目标客户（沙特阿拉伯 钻机）',
-      '✅ 找到 42 家潜在采购商',
-      '✅ 验证邮箱 38 家有效',
-      '✅ 筛选高匹配客户 15 家',
-      '✍️ 生成 5 封个性化开发信'
+      '🎯 正在智能分析：TWS蓝牙耳机 + 美国市场',
+      '🌐 搜索 LinkedIn 采购商档案...',
+      '✅ 匹配到 38 家潜在客户（年采购量>$100K）',
+      '🔍 验证企业邮箱有效性...',
+      '✅ 有效邮箱 31 家，拦截无效邮箱 7 家',
+      '🏆 筛选高意向客户（近6个月有相关采购记录）',
+      '📊 得出结论：高匹配 12 家，中匹配 15 家'
     ],
-    result: `📬 开发信预览：
-───────────────────────────────────────────
-发件人: {{sender_name}} <sales@yourcompany.com>
-主题:   Water Well Drilling Equipment for Saudi Arabia
+    result: `<span class="result-title">✅ 客户挖掘结果</span>
+<div class="quick-stats">
+  <div class="stat"><div class="num">38</div><div class="label">潜在客户</div></div>
+  <div class="stat"><div class="num">31</div><div class="label">有效邮箱</div></div>
+  <div class="stat"><div class="num">12</div><div class="label">高匹配</div></div>
+  <div class="stat"><div class="num">5</div><div class="label">VIP(5星)</div></div>
+</div>
+<div class="section-label">TOP 3 高匹配客户</div>
+<span class="tag">⭐⭐⭐⭐⭐ VIP</span> <strong>AudioMax Distribution LLC</strong> — 美国加州，年采购量$2.4M，专注消费电子
+  📧 procurement@audio-max.com · LinkedIn: 15K+ followers · 近期在找TWS供应商
+  💡 采购决策人: Mike Johnson, Head of Procurement
+  🎯 切入建议: 强调FDA/CE认证，有Bose/JBL合作经验
 
-尊敬的 Al-Rashid Drilling LLC 采购团队：
+<span class="tag">⭐⭐⭐⭐⭐ VIP</span> <strong>SoundWave Electronics Inc</strong> — 美国德州，年采购量$1.8M，电商渠道为主
+  📧 buyer@soundwave-elec.com · Amazon年销售额$8M+
+  💡 切入建议: 强调快速交期+退换货政策，电商最关心翻货率
 
-我们注意到贵司近期在沙漠钻井领域持续扩张...
-
-我们专注于中东市场的钻井设备供应超过8年，
-产品已通过API认证，出口至阿联酋、卡塔尔等国。
-
-期待与贵司合作！
-
-{{sender_name}}
-Sales Team | Your Company
-───────────────────────────────────────────
-
-✅ 本次演示完成。配置 API Key 后自动使用真实 AI 生成内容。`
+<span class="tag">⭐⭐⭐⭐</span> <strong>Pacific Tech Goods</strong> — 美国华盛顿州，年采购量$600K，线下渠道
+  📧 info@pacifictech.com
+  💡 切入建议: 支持定制Logo，适合礼品/企业采购渠道`
   },
   {
-    name: '📋 询盘分析 → 报价单',
+    label: '📋 询盘报价',
+    icon: '📋',
+    desc: '分析询盘，给出报价单和谈判策略',
     steps: [
-      '🔍 分析客户画像：终端用户（高利润，快速决策）',
-      '✅ 需求真实性：高（具体数量+交期+目的港）',
-      '💰 成本计算：FOB $28,500 / CIF $30,200',
-      '📊 还价空间：$2,000-$3,000/台',
-      '📄 生成 Proforma Invoice'
+      '📥 收到询盘：50,000件蓝牙音箱，法兰克福展会现场交换',
+      '🔍 分析客户画像：德国进口商 · 大型贸易公司 · 专业采购商',
+      '✅ 需求真实性：高（有具体数量+交货地+当场名片）',
+      '📊 HS编码识别：8518.30（耳机/音箱），退税率13%，无出口管制',
+      '💰 计算成本：FOB深圳 $4.20/件 · CIF汉堡 $4.85/件',
+      '📄 生成 Proforma Invoice...'
     ],
-    result: `📄 报价单预览：
-═══════════════════════════════════════
-         PROFORMA INVOICE
-───────────────────────────────────
-PI No.:     PI-20260326-001
-Date:       2026-03-26
-Valid Until: 2026-04-25
+    result: `<span class="result-title">📄 Proforma Invoice</span>
+<div class="section-label">PI-20260326-001 | 有效期：30天</div>
 
-Product:    200m Drilling Rig
-Quantity:   5 units
-FOB Price: $28,500/unit
-CIF Price: $30,200/unit
-───────────────────────────────────
-Total (FOB): $142,500
-Total (CIF): $151,000
-───────────────────────────────────
-Incoterms: FOB Shanghai
-Payment:   T/T 30% + 70% BL copy
-Lead Time: 45 days after deposit
-═══════════════════════════════════════`
+<span class="tag">卖方</span> ABC Electronics Co., Ltd.
+  深圳宝安区西乡街道XXX号 · Tel: +86-755-XXXXXXX
+
+<span class="tag">买方</span> AudioTech Handels GmbH
+ 法兰克福工业路XXX号 · VAT: DEXXXXXXXXX
+
+<span class="tag">商品明细</span>
+<table style="width:100%;border-collapse:collapse;margin:8px 0">
+<tr style="background:#1c2128"><th style="padding:6px 8px;text-align:left;font-size:0.72rem">品名</th><th style="padding:6px 8px;text-align:right;font-size:0.72rem">数量</th><th style="padding:6px 8px;text-align:right;font-size:0.72rem">FOB单价</th><th style="padding:6px 8px;text-align:right;font-size:0.72rem">总价</th></tr>
+<tr><td style="padding:6px 8px;border-bottom:1px solid #21262d;font-size:0.78rem">TWS蓝牙耳机 M20（黑白两色）</td><td style="padding:6px 8px;border-bottom:1px solid #21262d;text-align:right;font-size:0.78rem">50,000件</td><td style="padding:6px 8px;border-bottom:1px solid #21262d;text-align:right;font-size:0.78rem">$4.20</td><td style="padding:6px 8px;border-bottom:1px solid #21262d;text-align:right;font-size:0.78rem">$210,000</td></tr>
+<tr><td style="padding:6px 8px;border-bottom:1px solid #21262d;font-size:0.78rem">蓝牙音箱 BS50</td><td style="padding:6px 8px;border-bottom:1px solid #21262d;text-align:right;font-size:0.78rem">20,000件</td><td style="padding:6px 8px;border-bottom:1px solid #21262d;text-align:right;font-size:0.78rem">$6.80</td><td style="padding:6px 8px;border-bottom:1px solid #21262d;text-align:right;font-size:0.78rem">$136,000</td></tr>
+<tr style="background:#1c2128"><td colspan=3 style="padding:6px 8px;font-weight:600;text-align:right">合同总价 (FOB)</td><td style="padding:6px 8px;text-align:right;font-weight:700;color:#28c840">$346,000</td></tr>
+</table>
+
+<span class="tag">贸易术语</span> FOB Shenzhen · <span class="tag">付款</span> T/T 30% deposit + 70% BL copy
+<span class="tag">交货期</span> 45 days after deposit · <span class="tag">包装</span> 50pcs/ctn, 500ctns/20GP
+
+<span class="tag" style="background:rgba(255,184,77,0.12);color:#ffb84d">💡 谈判建议</span>
+客户可能压价 $0.3-0.5/件，让步底线：TWS $3.90, 音箱 $6.50
+德国客户重视 CE 认证和 REACH 环保标准，建议主动提供证书清单`
   },
   {
-    name: '📧 邮件跟进序列',
+    label: '📧 开发信',
+    icon: '📧',
+    desc: 'AI生成个性化开发信，支持多语言多渠道',
     steps: [
-      '📋 创建 Cold Outreach 序列',
-      '✅ 配置 Day1/3/7/14/25 触达节奏',
-      '🤖 AI 生成 5 封个性化邮件',
-      '📊 设置打开/回复追踪',
-      '📤 导出 CSV 导入邮件营销工具'
+      '📋 选定目标：TWS蓝牙耳机 + 美国加州 AudioMax Distribution',
+      '🔍 调研客户背景：公司成立于2008年，专注高端音频...',
+      '✍️ AI生成个性化开发信（已嵌入客户真实信息）',
+      '🌐 翻译为英文版本（同时生成西班牙语版本备用）',
+      '📎 附带产品资料附件链接',
+      '✅ 2封邮件已生成，可直接复制使用'
     ],
-    result: `📧 邮件序列预览：
-───────────────────────────────────────────
+    result: `<span class="result-title">📧 开发信预览</span>
 
-📅 Day 1 — 首封开发信
-主题: Water Well Drilling Solutions for {{company_name}}
-CTA: 预约15分钟电话
+<span class="tag">收件人</span> Mike Johnson · Head of Procurement · AudioMax Distribution LLC
+<span class="tag">主题</span> Quick Question: TWS Earbuds with CE/FCC — Looking for Steady Supplier [USA Import]
 
-📅 Day 3 — 行业洞察
-主题: 沙特钻井市场Q1趋势报告
-内容: 附上市场数据摘要
+---
 
-📅 Day 7 — 案例分享
-主题: 同类项目的成功案例分享
-内容: 2-3个可验证的成功案例
+Dear Mike,
 
-📅 Day 14 — 限时动机
-主题: 展会季特别优惠（30天内有效）
-CTA: 获取展会专属折扣
+I came across AudioMax's strong presence in the premium audio segment — your recent partnership with JLab Audio caught my attention.
 
-📅 Day 25 — 关系维护
-主题: 保持联系，季度分享
-CTA: 订阅市场洞察通讯`
+We're ABC Electronics, a Shenzhen-based manufacturer specializing in TWS earbuds and Bluetooth speakers, with annual production capacity of 500,000 units.
+
+Why I'm reaching out: We're currently supplying 3 brands in your region and looking to expand. Your Amazon ratings (4.3★ avg) suggest you're selective about supplier quality — which aligns perfectly with what we do.
+
+What we can offer:
+✅ CE/FCC/RoHS certified (test reports ready)
+✅ 6+ years Amazon seller experience
+✅ 45-day lead time, with 10-day rush option
+✅ Custom logo and packaging at no extra cost
+
+I'd love to share our catalog and a sample unit for your evaluation. Would a quick 15-min call this week work for you?
+
+Best regards,
+Li Wei
+Sales Manager | ABC Electronics Co., Ltd.
+📧 sales@abcelectronics.cn | 📱 +86 138 XXXX XXXX
+🔗 abcelectronics.cn | 📸 @abcelectronics_official
+
+---
+<span style="color:#444;font-size:0.7rem">Spanish version (for Latin America outreach) also generated</span>`
   },
   {
-    name: '👥 CRM 客户管理',
+    label: '👥 CRM管理',
+    icon: '👥',
+    desc: '客户全生命周期追踪，逾期提醒，管道分析',
     steps: [
-      '📊 加载客户仪表盘...',
-      '🔥 A级客户：8家 | 📈 管道金额：$580,000',
-      '⚠️  逾期提醒：3条',
-      '📅 即将到期跟进：5条',
-      '🔍 按阶段分布统计...'
+      '📊 加载 CRM 仪表盘...',
+      '🔥 A级客户：12家 | 管道总额：$2,840,000',
+      '⚠️  逾期跟进：7条（本周需处理）',
+      '📅 未来7天到期提醒：9条',
+      '📈 本月新增线索：34家 | 转化率：18%',
+      '💰 预计本月可成交：$156,000'
     ],
-    result: `📊 CRM 仪表盘预览：
-───────────────────────────────────────────
-        客户阶段分布
+    result: `<span class="result-title">📊 CRM 仪表盘</span>
+<div class="quick-stats">
+  <div class="stat"><div class="num">89</div><div class="label">客户总数</div></div>
+  <div class="stat"><div class="num">$2.84M</div><div class="label">管道金额</div></div>
+  <div class="stat"><div class="num">12</div><div class="label">A级客户</div></div>
+  <div class="stat"><div class="num">$580K</div><div class="label">已成交</div></div>
+</div>
 
-🦷 线索      ████████████░░░░  12家  $45,000
-🎯 意向      █████████░░░░░░░░   8家  $120,000
-🤝 谈判中    █████░░░░░░░░░░░   5家  $280,000
-📝 合同阶段  ██░░░░░░░░░░░░░░   2家  $95,000
-✅ 已成交    █████████████░░░  15家  $580,000
+<div class="section-label">客户阶段分布</div>
+🦷 线索      23家  ████████████░░░░  $156,000
+🎯 意向确认  18家  █████████░░░░░░░░  $680,000
+🤝 谈判中    11家  █████░░░░░░░░░░░  $1,200,000
+📝 合同阶段   5家  ███░░░░░░░░░░░░░  $340,000
+✅ 已成交    32家  █████████████░░░  $580,000 (MTD)
 
-🔔 逾期提醒
-  🔴 沙特 Arabia Oil — 跟进报价（逾期2天）
-  🔴 UAE Gulf Trading — 寄送样品（逾期5天）
-  🔴 Nigeria Meridian — 跟进合同（逾期1天）
-───────────────────────────────────────────`
+<div class="section-label">⚠️  逾期跟进（本周必处理）</div>
+🔴 AudioMax LLC — 跟进报价（逾期 <b>3天</b>）· 管道金额 $210,000
+🔴 SoundWave Electronics — 确认样品（逾期 <b>5天</b>）· $136,000
+🔴 Pacific Tech Goods — 寄送第3批货（逾期 <b>1天</b>）· $68,000
+🔴 Nordic Electronics AB — 跟进合同（逾期 <b>2天</b>）· $95,000
+🔴 Brasil Import Co. — 确认PI（逾期 <b>7天</b>）· $45,000
+
+<div class="section-label">💡 行动建议</div>
+本周优先联系前2个A级客户，预计可转化 $346,000；AudioMax 已有明确意向，成功率>60%`
   },
   {
-    name: '🏛️ 展会全流程管理',
+    label: '🏛️ 展会获客',
+    icon: '🏛️',
+    desc: '广交会/展会名片智能管理，72小时黄金跟进',
     steps: [
-      '📍 加载 OTC 2026 展会数据...',
-      '🏷️  收集名片：156 张',
-      '⭐  高质量线索：23 个（LeadQuality ≥ 4）',
-      '🔴  VIP（5星）：8 个',
-      '📧 自动创建展后跟进序列...'
+      '📍 广交会2026春季 · 广州琶洲 · Booth 8A-12',
+      '🏷️  展会3天共收集名片：<b>238张</b>',
+      '⭐  高质量线索（LeadQuality ≥ 4星）：<b>31家</b>',
+      '🔴  VIP（5星）：<b>9家</b> — 有明确采购意向',
+      '🧠 AI分析：6家来自东南亚，3家中东，2家南美',
+      '📧 自动创建展后跟进序列（Day1/3/7/14）...',
+      '✅ 展后72小时跟进序列已启动，发送给全部31家高质线索'
     ],
-    result: `🏛️ OTC 2026 展会统计：
-───────────────────────────────────────────
-展会：OTC 2026
-地点：Houston, TX · 2026-05-01 to 05-04
-展位：Booth B1234
+    result: `<span class="result-title">🏛️ 广交会2026春季 展会总结</span>
+<div class="quick-stats">
+  <div class="stat"><div class="num">238</div><div class="label">收集名片</div></div>
+  <div class="stat"><div class="num">31</div><div class="label">高质量线索</div></div>
+  <div class="stat"><div class="num">9</div><div class="label">VIP(5星)</div></div>
+  <div class="stat"><div class="num">$4.2M</div><div class="label">预估管道</div></div>
+</div>
 
-📊 线索质量分布：
-  ⭐⭐⭐⭐⭐ (VIP)  8家  John Martinez @ Texan Drilling
-  ⭐⭐⭐⭐          15家  Sarah Chen @ Pacific Energy
-  ⭐⭐⭐⭐          8家   Mohammed @ Gulf Petro
-  ⭐⭐⭐            23家  其他名片
+<div class="section-label">⭐ VIP 线索（5星 = 明确意向，优先跟进）</div>
+<span class="tag">⭐⭐⭐⭐⭐ VIP</span> <strong>PT Teknologi Nusantara</strong> — 印度尼西亚雅加达
+  💼 年营收$50M，专注消费电子进口
+  📧 procurement@teknusantara.co.id
+  📦 目标产品：TWS耳机 20K件，蓝牙音箱 10K件
+  💡 展会现场已确认样品，意向极强，建议Day1优先联系
 
-📋 展后72h任务清单：
-  ✅ 发送感谢邮件（当天）
-  ⬜ VIP线索优先跟进（Day1-3）
-  ⬜ 录入CRM系统
-  ⬜ 启动跟进序列
-  ⬜ 展后总结报告
-───────────────────────────────────────────`
+<span class="tag">⭐⭐⭐⭐⭐ VIP</span> <strong>Riyadh Electronics Co.</strong> — 沙特利雅得
+  💼 沙特最大电器分销商之一，年采购$8M+
+  📧 bulk@riyadhelec.sa
+  📦 目标产品：TWS+蓝牙音箱，散单+自有品牌
+  💡 已有自有品牌合作意向，需提供FOB报价
+
+<span class="tag">⭐⭐⭐⭐⭐ VIP</span> <strong>Grupo Importech</strong> — 墨西哥城
+  💼 拉丁美洲前五电商平台，年增⻓40%
+  📧 compras@importech.mx
+  📦 目标：TWS 50K件，Q4旺季备货
+  💡 竞品报价已在手，价格敏感，需强调质量+交期
+
+<div class="section-label">📧 展后72h跟进序列</div>
+✅ Day1 (已完成) — 感谢邮件 + 产品手册 PDF 已发送至 31 家
+⬜ Day3 — 个性化报价 + 展会专属优惠（$0.15/件折扣）
+⬜ Day7 — 案例分享 + 样品发货通知
+⬜ Day14 — 展会限时优惠倒计时（7天内有效）
+⬜ Day30 — 保持联系 + Q4旺季备货提醒`
   }
 ];
 
-let currentStep = 0;
-let typingInterval = null;
+let currentTab = 0;
+let stepIntervals = [];
 
-function showScenario(idx, btn) {
-  // Update active button
-  document.querySelectorAll('.scenario-btn').forEach(b => b.classList.remove('active'));
+function showTab(idx, btn) {
+  currentTab = idx;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
 
-  // Clear existing typing
-  if (typingInterval) { clearInterval(typingInterval); typingInterval = null; }
+  // Clear all intervals
+  stepIntervals.forEach(clearInterval);
+  stepIntervals = [];
 
-  const scenario = scenarios[idx];
-  const output = document.getElementById('term-output');
-  output.innerHTML = '';
+  const data = TAB_DATA[idx];
+  const content = document.getElementById('tab-content');
+  content.innerHTML = '';
 
-  // Show title
-  const title = document.createElement('div');
-  title.style.color = '#667eea';
-  title.style.marginBottom = '8px';
-  title.style.fontWeight = '600';
-  title.textContent = scenario.name;
-  output.appendChild(title);
+  // Header
+  const header = document.createElement('div');
+  header.style.marginBottom = '12px';
+  header.innerHTML = `<div style="color:#667eea;font-weight:700;margin-bottom:4px">${data.label}</div><div style="color:#555;font-size:0.78rem">${data.desc}</div>`;
+  content.appendChild(header);
 
-  // Animate steps with typing effect
+  // Steps container
+  const stepsEl = document.createElement('div');
+  stepsEl.style.marginBottom = '10px';
+  content.appendChild(stepsEl);
+
+  // Result container
+  const resultEl = document.createElement('div');
+  resultEl.style.display = 'none';
+  resultEl.className = 'result-panel';
+  content.appendChild(resultEl);
+
+  // Animate steps
   let stepIdx = 0;
-  const stepEls = [];
+  let stepTimeout = null;
 
   function addStep() {
-    if (stepIdx >= scenario.steps.length) {
+    if (stepIdx >= data.steps.length) {
       // Show result
-      setTimeout(() => {
-        const result = document.createElement('div');
-        result.style.color = '#28c840';
-        result.style.marginTop = '12px';
-        result.style.whiteSpace = 'pre-wrap';
-        result.style.fontSize = '0.8rem';
-        result.style.borderTop = '1px solid #333';
-        result.style.paddingTop = '10px';
-        result.textContent = scenario.result;
-        output.appendChild(result);
-      }, 300);
+      stepTimeout = setTimeout(() => {
+        resultEl.style.display = 'block';
+        resultEl.className = 'result-panel fade-in';
+        resultEl.innerHTML = data.result;
+      }, 400);
       return;
     }
 
     const el = document.createElement('div');
     el.style.color = '#28c840';
     el.style.opacity = '0';
-    output.appendChild(el);
+    el.style.transition = 'opacity 0.15s';
+    el.style.marginBottom = '3px';
+    stepsEl.appendChild(el);
 
-    // Type out each char
-    const text = scenario.steps[stepIdx];
+    // Typing effect
+    const text = data.steps[stepIdx];
     let charIdx = 0;
-    el.style.transition = 'opacity 0.1s';
     el.style.opacity = '1';
 
-    const typeChar = () => {
+    const typeInterval = setInterval(() => {
       if (charIdx < text.length) {
         el.textContent += text[charIdx++];
-        setTimeout(typeChar, 20 + Math.random() * 30);
       } else {
+        clearInterval(typeInterval);
         stepIdx++;
-        setTimeout(addStep, 400);
+        const delay = stepIdx >= data.steps.length ? 300 : 350;
+        stepTimeout = setTimeout(addStep, delay);
       }
-    };
-    typeChar();
+    }, 18 + Math.random() * 22);
+
+    stepIntervals.push(typeInterval);
   }
 
-  addStep();
+  stepTimeout = setTimeout(addStep, 300);
+  stepIntervals.push(null); // marker
 }
 
-// Auto-play first scenario on load
+// Auto-play first tab
 window.addEventListener('load', () => {
   setTimeout(() => {
-    const firstBtn = document.querySelector('.scenario-btn');
-    if (firstBtn) showScenario(0, firstBtn);
-  }, 500);
+    const firstBtn = document.querySelector('.tab-btn');
+    if (firstBtn) showTab(0, firstBtn);
+  }, 600);
 });
 </script>
 </body>
