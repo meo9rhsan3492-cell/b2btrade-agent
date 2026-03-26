@@ -189,6 +189,10 @@ async function main() {
       await runShow(args.slice(1));
       break;
 
+    case 'demo':
+      await runDemo(args.slice(1));
+      break;
+
     default:
       // 尝试作为直接命令执行
       await quickCommand(command + ' ' + args.slice(1).join(' '));
@@ -357,6 +361,212 @@ async function runWorkflow(wfId, params) {
     default:
       console.log(chalk.red(`未知工作流: ${wfId}`));
   }
+}
+
+// ===== Demo 模式（无需 API Key）=====
+async function runDemo(args) {
+  const config = loadConfig();
+  const hasApiKey = config.apiKey && config.apiKey.length > 5;
+
+  console.log(chalk.bold(`
+╔══════════════════════════════════════════════════════════════╗
+║         🧪 B2Btrade-Agent 演示模式                          ║
+║   不需要 API Key，直接体验核心功能                           ║
+╚══════════════════════════════════════════════════════════════╝
+  `));
+
+  const demoScenario = args[0] || 'menu';
+
+  switch (demoScenario) {
+    case 'menu':
+      console.log(chalk.cyan('\n选择一个场景体验：\n'));
+      console.log(`  ${chalk.green('1')}  客户挖掘 → 开发信（全流程）`);
+      console.log(`  ${chalk.green('2')}  询盘分析 → 报价单`);
+      console.log(`  ${chalk.green('3')}  展会线索管理`);
+      console.log('  ' + chalk.green('4') + '   CRM 客户仪表盘');
+      console.log('  ' + chalk.green('5') + '   HS编码查询');
+      console.log('  ' + chalk.green('0') + '   退出');
+      console.log(chalk.gray('  用法: b2b demo <1-5>\n'));
+      if (!hasApiKey) {
+        console.log(chalk.yellow('  ⚠️  未配置 API Key，部分 AI 生成功能不可用\n'));
+      } else {
+        console.log(chalk.green('  ✅ API Key 已配置，AI 功能全部可用\n'));
+      }
+      break;
+
+    case '1':
+      await demoCustomerDiscovery();
+      break;
+    case '2':
+      await demoRFQAnalysis();
+      break;
+    case '3':
+      await demoTradeShow();
+      break;
+    case '4':
+      await demoCRM();
+      break;
+    case '5':
+      await demoHSCode();
+      break;
+    default:
+      await runDemo(['menu']);
+  }
+}
+
+async function demoCustomerDiscovery() {
+  console.log(chalk.bold('\n🎯 演示：客户挖掘 → 开发信\n'));
+
+  const steps = [
+    { label: '🔍 搜索目标客户（沙特阿拉伯 钻机）', delay: 800 },
+    { label: '📋 筛选高匹配客户', delay: 600 },
+    { label: '✍️ 生成个性化开发信（5封）', delay: 1000 },
+    { label: '📊 客户分级评估', delay: 500 },
+  ];
+
+  for (const step of steps) {
+    await delay(step.delay);
+    console.log(chalk.green('  ✅ ' + step.label));
+  }
+
+  console.log(chalk.cyan('\n  📬 开发信预览：\n'));
+  console.log(chalk.white(`  ───────────────────────────────────────────`));
+  console.log(chalk.white(`  发件人: {{sender_name}} <sales@yourcompany.com>`));
+  console.log(chalk.white(`  主题:   Regarding Water Well Drilling Equipment - {{company_name}}\n`));
+  console.log(chalk.white(`  尊敬的 {{company_name}} 采购团队：\n`));
+  console.log(chalk.white(`  我们注意到贵司在沙漠钻井领域有丰富经验...`));
+  console.log(chalk.cyan(`  [篇幅限制，已省略中间内容]\n`));
+  console.log(chalk.white(`  期待与贵司合作！
+
+  {{sender_name}}
+  Sales Team | Your Company
+  Tel: +86-xxx-xxxx-xxxx
+  ───────────────────────────────────────────`));
+
+  console.log(chalk.green('\n  ✅ 演示完成！'));
+  console.log(chalk.gray('  实际使用请运行: b2b config 配置 API Key\n'));
+}
+
+async function demoRFQAnalysis() {
+  console.log(chalk.bold('\n🧩 演示：询盘分析 → 报价单\n'));
+
+  console.log(chalk.cyan('  📩 收到询盘:'));
+  console.log(chalk.white(`  "We need 5 units of 200m depth drilling rig for our project in Dubai.
+  Delivery required within 60 days. Please provide FOB and CIF prices.
+  Best regards,
+  Ahmed Al-Rashid
+  Procurement Manager, Al-Rashid Drilling LLC"\n`));
+
+  const steps = [
+    { label: '🔍 客户画像分析', delay: 700 },
+    { label: '📊 需求真实性评估', delay: 500 },
+    { label: '💰 成本计算（FOB/CIF）', delay: 600 },
+    { label: '📋 生成报价单', delay: 800 },
+  ];
+
+  for (const step of steps) {
+    await delay(step.delay);
+    console.log(chalk.green('  ✅ ' + step.label));
+  }
+
+  console.log(chalk.cyan('\n  📄 报价单预览：\n'));
+  console.log(chalk.white(`  ╔═══════════════════════════════════════════╗
+  ║        PROFORMA INVOICE (PI)           ║
+  ╠═══════════════════════════════════════════╣
+  ║  PI No.: PI-20260326-001               ║
+  ║  Product: 200m Drilling Rig            ║
+  ║  Quantity: 5 units                      ║
+  ║  FOB Price: $28,500/unit               ║
+  ║  CIF Price: $30,200/unit              ║
+  ║  Total (FOB): $142,500                ║
+  ║  Incoterms: FOB Shanghai              ║
+  ║  Payment: T/T 30% deposit + 70% BL   ║
+  ║  Lead Time: 45 days                   ║
+  ╚═══════════════════════════════════════════╝`));
+
+  console.log(chalk.green('\n  ✅ 演示完成！'));
+  console.log(chalk.gray('  实际使用请配置 API Key 获取完整 AI 分析\n'));
+}
+
+async function demoTradeShow() {
+  console.log(chalk.bold('\n🏛️  演示：展会全流程管理\n'));
+
+  console.log(chalk.cyan('  📍 OTC 2026 展会（休斯顿）\n'));
+
+  const leads = [
+    { name: 'John Martinez', company: 'Texan Drilling Co.', country: 'USA', quality: 5, email: 'jmartinez@texandrilling.com' },
+    { name: 'Sarah Chen', company: 'Pacific Energy Systems', country: 'Singapore', quality: 4, email: 'sarah.chen@pes.sg' },
+    { name: 'Mohammed Hassan', company: 'Gulf Petro Industries', country: 'UAE', quality: 4, email: 'm.hassan@gpi.ae' },
+    { name: 'Carlos Rodriguez', company: 'LatAm Resources', country: 'Mexico', quality: 3, email: 'c.rodriguez@latamres.mx' },
+  ];
+
+  console.log(chalk.white('  🏷️  展会名片收集：\n'));
+  for (const lead of leads) {
+    const star = '⭐'.repeat(lead.quality);
+    console.log(`  ${star} ${chalk.white(lead.name)} @ ${chalk.cyan(lead.company)} (${lead.country})`);
+    console.log(chalk.gray(`     📧 ${lead.email}`));
+  }
+
+  console.log(chalk.cyan('\n  📊 展会统计：'));
+  console.log(chalk.white(`  总名片: 156 张 | 高质量线索: 23 个 | VIP (5星): 8 个`));
+  console.log(chalk.green('\n  ✅ 演示完成！'));
+  console.log(chalk.gray('  使用 b2b show add 添加真实展会数据\n'));
+}
+
+async function demoCRM() {
+  console.log(chalk.bold('\n👥 演示：CRM 客户仪表盘\n'));
+
+  console.log(chalk.cyan('  📊 当前客户概览：\n'));
+
+  const stages = [
+    ['🦷 线索阶段', 12, 45000],
+    ['🎯 意向阶段', 8, 120000],
+    ['🤝 谈判中', 5, 280000],
+    ['📝 合同阶段', 2, 95000],
+    ['✅ 已成交', 15, 580000],
+  ];
+
+  for (const [name, count, revenue] of stages) {
+    const bar = '█'.repeat(Math.round(count / 15 * 20)) + '░'.repeat(20 - Math.round(count / 15 * 20));
+    console.log(`  ${name.padEnd(12)} ${chalk.cyan(bar)} ${count}家  $${(revenue/1000).toFixed(0)}K`);
+  }
+
+  console.log(chalk.cyan('\n  🔔 近期待办：'));
+  console.log(chalk.red('  ⚠️  逾期提醒 (3):'));
+  console.log('    🔴 沙特 Arabia Oil  - 跟进报价 (逾期 2 天)');
+  console.log('    🔴 UAE Gulf Trading - 寄样品 (逾期 5 天)');
+  console.log(chalk.green('  📅 即将到期 (2):'));
+  console.log('    🟡 Texan Drilling  - 预约电话 (明天)');
+
+  console.log(chalk.green('\n  ✅ 演示完成！'));
+  console.log(chalk.gray('  使用 b2b crm add 添加客户记录\n'));
+}
+
+async function demoHSCode() {
+  console.log(chalk.bold('\n📦 演示：HS编码查询\n'));
+
+  const codes = [
+    { code: '8430.50', desc: '石油/天然气钻机', rebate: 13, duty: 0, control: '需出口许可证' },
+    { code: '8708.99', desc: '汽车零件及附件', rebate: 13, duty: 10, control: '无' },
+    { code: '8517.12', desc: '智能手机', rebate: 0, duty: 0, control: '无' },
+  ];
+
+  console.log(chalk.cyan('  查询结果：\n'));
+  console.log(chalk.white(`  ${'HS编码'.padEnd(10)} ${'品名'.padEnd(20)} ${'退税率'.padEnd(10)} ${'关税'.padEnd(8)} ${'管制'}`));
+  console.log(chalk.white('  ' + '─'.repeat(75)));
+
+  for (const c of codes) {
+    const rebateColor = c.rebate > 0 ? chalk.green : chalk.yellow;
+    const controlColor = c.control === '无' ? chalk.green : chalk.red;
+    console.log(`  ${chalk.cyan(c.code).padEnd(10)} ${c.desc.padEnd(20)} ${rebateColor(c.rebate+'%').padEnd(10)} ${chalk.white(c.duty+'%').padEnd(8)} ${controlColor(c.control)}`);
+  }
+
+  console.log(chalk.green('\n  ✅ 演示完成！'));
+  console.log(chalk.gray('  使用 b2b chat rfq 接入 AI 分析真实产品 HS 编码\n'));
+}
+
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 // ===== CRM 命令 =====
