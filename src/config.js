@@ -1,11 +1,21 @@
 /**
  * B2Btrade-agent 配置管理
+ * 支持: JSON配置文件 + .env环境变量 + 交互式配置
  */
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
+import { fileURLToPath } from 'url';
 import inquirer from 'inquirer';
 import chalk from 'chalk';
+import { dotenv } from 'dotenv';
+
+// 加载 .env（项目根目录）
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const envPath = path.resolve(__dirname, '..', '.env');
+if (fs.existsSync(envPath)) {
+  dotenv.config({ path: envPath });
+}
 
 function getConfigFile() {
   return process.env.B2BTRADE_CONFIG_FILE || path.join(os.homedir(), '.b2btrade-agent.json');
@@ -14,127 +24,50 @@ function getConfigFile() {
 const defaultConfig = {
   apiProvider: 'openai',
   apiKey: '',
-  model: 'gpt-4',
-  defaultAgent: 'default',
+  model: '',
+  locale: 'zh',
 
-  // ── Shopify 配置 ──────────────────────────────────────────
-  // 获取: Shopify Admin > Settings > Apps > Develop apps > Admin API Access Token
-  shopify: {
-    storeUrl: '',       // 例: my-store.myshopify.com
-    accessToken: ''     // shpat_xxxxx
-  },
-
-  // ── 阿里巴巴1688 配置 ───────────────────────────────────────
-  // 获取: https://open.1688.com/ > 开发者中心 > 创建应用 > OAuth2.0 获取 Token
-  ali1688: {
-    appKey: '',
-    appSecret: '',
-    accessToken: ''
-  },
-
-  // ── TikTok Shop 配置 ───────────────────────────────────────
-  // 获取: TikTok Shop Seller Center > Partner Platform > 创建应用
-  tiktok: {
-    clientKey: '',
-    clientSecret: '',
-    shopId: '',
-    accessToken: ''
-  },
-
-  // ── Instagram 配置 ─────────────────────────────────────────
-  // 获取: Facebook Developers > 创建 Business App > Instagram Graph API
-  instagram: {
-    accessToken: '',           // Facebook Page Access Token
-    instagramAccountId: '',     // Instagram Business Account ID
-    facebookPageId: ''         // Facebook Page ID
-  },
-
-  // LinkedIn 配置
-  linkedin: {
-    // 批量处理最大数量
-    maxBatchSize: 20,
-    // 默认语气: professional | friendly | formal | casual
-    defaultTone: 'professional',
-    // 默认语言: zh-CN | en-US
-    defaultLanguage: 'zh-CN',
-    // Google 搜索并发数
-    searchConcurrency: 3,
-    // 搜索间隔（ms）
-    searchDelayMs: 1000,
-    // 抓取超时（ms）
-    scrapeTimeout: 15000,
-    // 是否启用缓存
-    enableCache: false,
-    // 备注字段（发送连接请求时是否添加个性化备注）
-    includeCustomNote: true,
-  },
-
-  // ── WhatsApp 外展配置 ─────────────────────────────────────
-  // 用于 WhatsApp 外展助手（批量消息生成）
-  whatsapp: {
-    // 默认语言: zh | en | ar | es | fr | pt | ru | de | ja | ko
-    defaultLanguage: 'zh',
-    // 默认语气: formal | friendly | concise
-    defaultTone: 'formal',
-    // AI 增强开关
-    enableAIEnhance: true,
-    // 批量处理间隔（ms）
-    batchDelayMs: 200,
-    // 发件人信息（生成消息时自动填充）
-    sender: {
-      name: '',
-      company: '',
-      phone: '',
-      email: ''
-    }
-  },
-
-  // ── Email 外展配置 ─────────────────────────────────────────
-  // 用于 Email 外展助手（开发信/跟进/报价）
-  email: {
-    // 默认语言: zh | en | ar | es | fr | pt | ru | de | ja | ko
-    defaultLanguage: 'zh',
-    // 默认语气: formal | friendly | concise
-    defaultTone: 'formal',
-    // 默认邮件类型: cold | followup | quote | intro | meeting
-    defaultEmailType: 'cold',
-    // AI 增强开关
-    enableAIEnhance: true,
-    // 是否启用 HTML 格式
-    enableHtml: true,
-    // 发件人信息（生成邮件时自动填充）
-    sender: {
-      name: '',
-      company: '',
-      email: '',
-      phone: '',
-      city: ''
-    },
-    // Gmail OAuth2（仅发送时需要，生成邮件不需要）
-    gmail: {
-      clientId: '',
-      clientSecret: '',
-      refreshToken: ''
-    },
-    // Outlook OAuth2（仅发送时需要，生成邮件不需要）
-    outlook: {
-      tenantId: '',
-      clientId: '',
-      clientSecret: ''
-    }
-  }
+  // Shopify
+  shopify: { storeUrl: '', accessToken: '' },
+  // Ali1688
+  ali1688: { appKey: '', appSecret: '', accessToken: '' },
+  // TikTok
+  tiktok: { clientKey: '', clientSecret: '', shopId: '', accessToken: '' },
+  // Instagram
+  instagram: { accessToken: '', instagramAccountId: '', facebookPageId: '' },
+  // LinkedIn
+  linkedin: { maxBatchSize: 20, defaultTone: 'professional', defaultLanguage: 'zh-CN', enableCache: false },
+  // WhatsApp
+  whatsapp: { defaultLanguage: 'zh', defaultTone: 'formal', enableAIEnhance: true },
+  // Email
+  email: { defaultLanguage: 'zh', defaultTone: 'formal', enableHtml: true, sender: { name: '', company: '', email: '', phone: '', city: '' } }
 };
 
 export function loadConfig() {
+  // 1. 优先读取环境变量
+  const envConfig = {
+    apiProvider: process.env.B2B_API_PROVIDER || '',
+    apiKey: process.env.B2B_API_KEY || '',
+    model: process.env.B2B_MODEL || '',
+    locale: process.env.B2B_LOCALE || 'zh'
+  };
+
+  // 2. 合并 JSON 配置文件
   try {
     if (fs.existsSync(getConfigFile())) {
       const data = fs.readFileSync(getConfigFile(), 'utf8');
-      return { ...defaultConfig, ...JSON.parse(data) };
+      const fileConfig = JSON.parse(data);
+      // 去掉空字符串的环境变量（让文件配置优先）
+      Object.keys(envConfig).forEach(k => { if (!envConfig[k]) delete envConfig[k]; });
+      return { ...defaultConfig, ...envConfig, ...fileConfig };
     }
   } catch (e) {
-    console.error('加载配置失败:', e.message);
+    // ignore
   }
-  return { ...defaultConfig };
+
+  // 只有环境变量
+  Object.keys(envConfig).forEach(k => { if (!envConfig[k]) delete envConfig[k]; });
+  return { ...defaultConfig, ...envConfig };
 }
 
 export function getConfig() {
@@ -143,55 +76,73 @@ export function getConfig() {
 
 export function saveConfig(config) {
   try {
-    fs.writeFileSync(getConfigFile(), JSON.stringify(config, null, 2));
+    const dir = path.dirname(getConfigFile());
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(getConfigFile(), JSON.stringify(config, null, 2), 'utf8');
     return true;
   } catch (e) {
-    console.error('保存配置失败:', e.message);
     return false;
   }
 }
 
 export async function configureApiKey() {
   const config = loadConfig();
-  
-  console.log(chalk.bold('\n⚙️ API配置\n'));
-  
+
+  console.log(chalk.bold('\n⚙️  API 配置向导\n'));
+  console.log(chalk.gray('支持 OpenAI / Anthropic Claude / Google Gemini / MiniMax\n'));
+
+  const choices = [
+    { name: '1. OpenAI (GPT-4 / GPT-4o)', value: 'openai' },
+    { name: '2. Anthropic (Claude 3.5)', value: 'anthropic' },
+    { name: '3. Google (Gemini 2.0)', value: 'google' },
+    { name: '4. MiniMax (M2.5)', value: 'minimax' }
+  ];
+
+  const defaults = {
+    openai: { model: 'gpt-4o-mini', url: 'https://platform.openai.com/api-keys' },
+    anthropic: { model: 'claude-3-5-haiku-20241022', url: 'https://console.anthropic.com/settings/keys' },
+    google: { model: 'gemini-2.0-flash', url: 'https://aistudio.google.com/app/apikey' },
+    minimax: { model: 'MiniMax-M2.5', url: 'https://platform.minimax.chat/' }
+  };
+
   const answers = await inquirer.prompt([
     {
       type: 'list',
       name: 'provider',
       message: '选择AI服务商:',
-      choices: [
-        { name: 'OpenAI (GPT-4)', value: 'openai' },
-        { name: 'Anthropic (Claude)', value: 'anthropic' },
-        { name: 'Google (Gemini)', value: 'google' },
-        { name: 'Minimax', value: 'minimax' }
-      ],
-      default: config.apiProvider
+      choices,
+      default: choices.findIndex(c => c.value === config.apiProvider)
     },
     {
       type: 'input',
       name: 'apiKey',
       message: '输入API Key:',
       default: config.apiKey,
-      validate: (input) => input.length > 10 || '请输入有效的API Key'
+      validate: (input) => input.length > 5 || 'API Key不能为空'
     },
     {
       type: 'input',
       name: 'model',
-      message: '模型 (直接回车使用默认):',
-      default: config.model || 'gpt-4'
+      message: '模型（直接回车使用推荐值）:',
+      default: defaults[answers?.provider || config.apiProvider || 'openai'].model
     }
   ]);
+
+  const modelDefaults = { openai: 'gpt-4o-mini', anthropic: 'claude-3-5-haiku-20241022', google: 'gemini-2.0-flash', minimax: 'MiniMax-M2.5' };
 
   const newConfig = {
     ...config,
     apiProvider: answers.provider,
     apiKey: answers.apiKey,
-    model: answers.model || 'gpt-4'
+    model: answers.model || modelDefaults[answers.provider] || ''
   };
 
   if (saveConfig(newConfig)) {
-    console.log(chalk.green('\n✓ 配置已保存\n'));
+    console.log(chalk.green('\n✅ 配置已保存到 ~/.b2btrade-agent.json'));
+    console.log(chalk.gray('  也可以直接编辑 .env 文件\n'));
   }
+
+  console.log(chalk.cyan(`\n📖 获取 Key: ${defaults[newConfig.apiProvider].url}\n`));
 }
+
+export default { loadConfig, getConfig, saveConfig, configureApiKey };

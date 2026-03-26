@@ -715,7 +715,12 @@ export function selectAgent(userInput) {
 
 // 导出列表
 export function listAgents() {
-  return Object.values(agents);
+  return Object.entries(agents).map(([id, agent]) => ({
+    id,
+    name: agent.name,
+    description: agent.description || agent.role || '',
+    role: agent.role || ''
+  }));
 }
 
 export function getAgent(agentId) {
