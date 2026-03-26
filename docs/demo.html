@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B2Btrade Agent - 在线演示</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0a0a0f; color: #e0e0e0; min-height: 100vh; }
+  .container { max-width: 900px; margin: 0 auto; padding: 2rem 1rem; }
+
+  /* Header */
+  .header { text-align: center; margin-bottom: 3rem; }
+  .header h1 { font-size: 2rem; font-weight: 700; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .header p { color: #888; margin-top: 0.5rem; font-size: 1rem; }
+  .header .badge { display: inline-block; background: rgba(102, 126, 234, 0.15); border: 1px solid rgba(102, 126, 234, 0.3); color: #667eea; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; margin-top: 1rem; }
+
+  /* Terminal */
+  .terminal-wrap { background: #111; border-radius: 12px; border: 1px solid #222; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+  .term-bar { background: #1a1a2e; padding: 10px 16px; display: flex; align-items: center; gap: 6px; }
+  .term-dot { width: 12px; height: 12px; border-radius: 50%; }
+  .dot-red { background: #ff5f57; }
+  .dot-yellow { background: #febc2e; }
+  .dot-green { background: #28c840; }
+  .term-title { color: #666; font-size: 0.8rem; margin-left: 8px; }
+  .term-body { padding: 1.5rem; min-height: 300px; font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace; font-size: 0.85rem; line-height: 1.6; white-space: pre-wrap; }
+
+  /* Scenario buttons */
+  .scenarios { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; margin: 1.5rem 0; }
+  .scenario-btn { background: #1a1a2e; border: 1px solid #333; color: #e0e0e0; padding: 12px 16px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; transition: all 0.2s; text-align: left; }
+  .scenario-btn:hover { border-color: #667eea; background: #1e1e3a; transform: translateY(-1px); }
+  .scenario-btn.active { border-color: #667eea; background: rgba(102, 126, 234, 0.15); color: #667eea; }
+  .scenario-btn .icon { font-size: 1.1rem; margin-right: 6px; }
+  .scenario-btn .desc { font-size: 0.7rem; color: #666; margin-top: 2px; }
+
+  /* Features */
+  .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 2rem 0; }
+  .feature-card { background: #111827; border: 1px solid #1f2937; border-radius: 10px; padding: 16px; }
+  .feature-card .f-icon { font-size: 1.5rem; margin-bottom: 8px; }
+  .feature-card h3 { font-size: 0.9rem; margin-bottom: 4px; }
+  .feature-card p { font-size: 0.75rem; color: #666; }
+
+  /* CTA */
+  .cta { text-align: center; margin: 3rem 0; }
+  .cta-btn { display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.95rem; transition: transform 0.2s; }
+  .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4); }
+  .cta .sub { color: #666; font-size: 0.8rem; margin-top: 8px; }
+
+  /* Animation */
+  .typing-cursor { display: inline-block; width: 8px; height: 14px; background: #667eea; margin-left: 2px; animation: blink 1s step-end infinite; vertical-align: middle; }
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+  .fade-in { animation: fadeIn 0.5s ease-out; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* Footer */
+  .footer { text-align: center; color: #444; font-size: 0.75rem; margin-top: 3rem; border-top: 1px solid #1a1a1a; padding-top: 1.5rem; }
+  .footer a { color: #667eea; text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="header fade-in">
+    <h1>B2Btrade Agent</h1>
+    <p>外贸B2B智能助手 — AI驱动客户挖掘、跟进、报价全流程</p>
+    <span class="badge">🔥 无需安装，直接体验</span>
+  </div>
+
+  <!-- Demo Terminal -->
+  <div class="terminal-wrap fade-in">
+    <div class="term-bar">
+      <div class="term-dot dot-red"></div>
+      <div class="term-dot dot-yellow"></div>
+      <div class="term-dot dot-green"></div>
+      <span class="term-title">b2b demo — bash</span>
+    </div>
+
+    <!-- Scenario selector -->
+    <div class="scenarios" style="padding: 0 1.5rem; margin: 0;">
+      <button class="scenario-btn active" onclick="showScenario(0, this)">
+        <span class="icon">🔍</span>客户挖掘
+        <div class="desc">找到目标采购商</div>
+      </button>
+      <button class="scenario-btn" onclick="showScenario(1, this)">
+        <span class="icon">📋</span>询盘分析
+        <div class="desc">报价策略建议</div>
+      </button>
+      <button class="scenario-btn" onclick="showScenario(2, this)">
+        <span class="icon">📧</span>邮件序列
+        <div class="desc">自动跟进触达</div>
+      </button>
+      <button class="scenario-btn" onclick="showScenario(3, this)">
+        <span class="icon">👥</span>CRM管理
+        <div class="desc">客户关系追踪</div>
+      </button>
+      <button class="scenario-btn" onclick="showScenario(4, this)">
+        <span class="icon">📦</span>展会管理
+        <div class="desc">展前展后全流程</div>
+      </button>
+    </div>
+
+    <!-- Terminal output -->
+    <div class="term-body" id="term-output"></div>
+  </div>
+
+  <!-- Features -->
+  <div class="features fade-in">
+    <div class="feature-card">
+      <div class="f-icon">🛡️</div>
+      <h3>合规筛查</h3>
+      <p>OFAC/BIS制裁名单实时预警，高风险国家自动识别</p>
+    </div>
+    <div class="feature-card">
+      <div class="f-icon">💰</div>
+      <h3>精准报价</h3>
+      <p>HS编码查询 + Incoterms成本计算 + 专业PI报价单</p>
+    </div>
+    <div class="feature-card">
+      <div class="f-icon">🤖</div>
+      <h3>19个专家Agent</h3>
+      <p>覆盖外贸全流程：销售/物流/报关/谈判/财务</p>
+    </div>
+    <div class="feature-card">
+      <div class="f-icon">🌐</div>
+      <h3>多语言支持</h3>
+      <p>中文/英文/阿拉伯语/西班牙语/法语</p>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta fade-in">
+    <a href="https://github.com/meo9rhsan3492-cell/b2btrade-agent" class="cta-btn" target="_blank">🚀 立即开始使用</a>
+    <div class="sub">npm install b2btrade-agent · 3步配置 · 5分钟上手</div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <a href="https://github.com/meo9rhsan3492-cell/b2btrade-agent">GitHub</a> ·
+    <a href="https://github.com/meo9rhsan3492-cell/b2btrade-agent/blob/main/CHANGELOG.md">更新日志</a> ·
+    v1.1.0 · MIT License
+  </div>
+
+</div>
+
+<script>
+const scenarios = [
+  {
+    name: '🔍 客户挖掘 → 开发信',
+    steps: [
+      '🔍 正在搜索目标客户（沙特阿拉伯 钻机）',
+      '✅ 找到 42 家潜在采购商',
+      '✅ 验证邮箱 38 家有效',
+      '✅ 筛选高匹配客户 15 家',
+      '✍️ 生成 5 封个性化开发信'
+    ],
+    result: `📬 开发信预览：
+───────────────────────────────────────────
+发件人: {{sender_name}} <sales@yourcompany.com>
+主题:   Water Well Drilling Equipment for Saudi Arabia
+
+尊敬的 Al-Rashid Drilling LLC 采购团队：
+
+我们注意到贵司近期在沙漠钻井领域持续扩张...
+
+我们专注于中东市场的钻井设备供应超过8年，
+产品已通过API认证，出口至阿联酋、卡塔尔等国。
+
+期待与贵司合作！
+
+{{sender_name}}
+Sales Team | Your Company
+───────────────────────────────────────────
+
+✅ 本次演示完成。配置 API Key 后自动使用真实 AI 生成内容。`
+  },
+  {
+    name: '📋 询盘分析 → 报价单',
+    steps: [
+      '🔍 分析客户画像：终端用户（高利润，快速决策）',
+      '✅ 需求真实性：高（具体数量+交期+目的港）',
+      '💰 成本计算：FOB $28,500 / CIF $30,200',
+      '📊 还价空间：$2,000-$3,000/台',
+      '📄 生成 Proforma Invoice'
+    ],
+    result: `📄 报价单预览：
+═══════════════════════════════════════
+         PROFORMA INVOICE
+───────────────────────────────────
+PI No.:     PI-20260326-001
+Date:       2026-03-26
+Valid Until: 2026-04-25
+
+Product:    200m Drilling Rig
+Quantity:   5 units
+FOB Price: $28,500/unit
+CIF Price: $30,200/unit
+───────────────────────────────────
+Total (FOB): $142,500
+Total (CIF): $151,000
+───────────────────────────────────
+Incoterms: FOB Shanghai
+Payment:   T/T 30% + 70% BL copy
+Lead Time: 45 days after deposit
+═══════════════════════════════════════`
+  },
+  {
+    name: '📧 邮件跟进序列',
+    steps: [
+      '📋 创建 Cold Outreach 序列',
+      '✅ 配置 Day1/3/7/14/25 触达节奏',
+      '🤖 AI 生成 5 封个性化邮件',
+      '📊 设置打开/回复追踪',
+      '📤 导出 CSV 导入邮件营销工具'
+    ],
+    result: `📧 邮件序列预览：
+───────────────────────────────────────────
+
+📅 Day 1 — 首封开发信
+主题: Water Well Drilling Solutions for {{company_name}}
+CTA: 预约15分钟电话
+
+📅 Day 3 — 行业洞察
+主题: 沙特钻井市场Q1趋势报告
+内容: 附上市场数据摘要
+
+📅 Day 7 — 案例分享
+主题: 同类项目的成功案例分享
+内容: 2-3个可验证的成功案例
+
+📅 Day 14 — 限时动机
+主题: 展会季特别优惠（30天内有效）
+CTA: 获取展会专属折扣
+
+📅 Day 25 — 关系维护
+主题: 保持联系，季度分享
+CTA: 订阅市场洞察通讯`
+  },
+  {
+    name: '👥 CRM 客户管理',
+    steps: [
+      '📊 加载客户仪表盘...',
+      '🔥 A级客户：8家 | 📈 管道金额：$580,000',
+      '⚠️  逾期提醒：3条',
+      '📅 即将到期跟进：5条',
+      '🔍 按阶段分布统计...'
+    ],
+    result: `📊 CRM 仪表盘预览：
+───────────────────────────────────────────
+        客户阶段分布
+
+🦷 线索      ████████████░░░░  12家  $45,000
+🎯 意向      █████████░░░░░░░░   8家  $120,000
+🤝 谈判中    █████░░░░░░░░░░░   5家  $280,000
+📝 合同阶段  ██░░░░░░░░░░░░░░   2家  $95,000
+✅ 已成交    █████████████░░░  15家  $580,000
+
+🔔 逾期提醒
+  🔴 沙特 Arabia Oil — 跟进报价（逾期2天）
+  🔴 UAE Gulf Trading — 寄送样品（逾期5天）
+  🔴 Nigeria Meridian — 跟进合同（逾期1天）
+───────────────────────────────────────────`
+  },
+  {
+    name: '🏛️ 展会全流程管理',
+    steps: [
+      '📍 加载 OTC 2026 展会数据...',
+      '🏷️  收集名片：156 张',
+      '⭐  高质量线索：23 个（LeadQuality ≥ 4）',
+      '🔴  VIP（5星）：8 个',
+      '📧 自动创建展后跟进序列...'
+    ],
+    result: `🏛️ OTC 2026 展会统计：
+───────────────────────────────────────────
+展会：OTC 2026
+地点：Houston, TX · 2026-05-01 to 05-04
+展位：Booth B1234
+
+📊 线索质量分布：
+  ⭐⭐⭐⭐⭐ (VIP)  8家  John Martinez @ Texan Drilling
+  ⭐⭐⭐⭐          15家  Sarah Chen @ Pacific Energy
+  ⭐⭐⭐⭐          8家   Mohammed @ Gulf Petro
+  ⭐⭐⭐            23家  其他名片
+
+📋 展后72h任务清单：
+  ✅ 发送感谢邮件（当天）
+  ⬜ VIP线索优先跟进（Day1-3）
+  ⬜ 录入CRM系统
+  ⬜ 启动跟进序列
+  ⬜ 展后总结报告
+───────────────────────────────────────────`
+  }
+];
+
+let currentStep = 0;
+let typingInterval = null;
+
+function showScenario(idx, btn) {
+  // Update active button
+  document.querySelectorAll('.scenario-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  // Clear existing typing
+  if (typingInterval) { clearInterval(typingInterval); typingInterval = null; }
+
+  const scenario = scenarios[idx];
+  const output = document.getElementById('term-output');
+  output.innerHTML = '';
+
+  // Show title
+  const title = document.createElement('div');
+  title.style.color = '#667eea';
+  title.style.marginBottom = '8px';
+  title.style.fontWeight = '600';
+  title.textContent = scenario.name;
+  output.appendChild(title);
+
+  // Animate steps with typing effect
+  let stepIdx = 0;
+  const stepEls = [];
+
+  function addStep() {
+    if (stepIdx >= scenario.steps.length) {
+      // Show result
+      setTimeout(() => {
+        const result = document.createElement('div');
+        result.style.color = '#28c840';
+        result.style.marginTop = '12px';
+        result.style.whiteSpace = 'pre-wrap';
+        result.style.fontSize = '0.8rem';
+        result.style.borderTop = '1px solid #333';
+        result.style.paddingTop = '10px';
+        result.textContent = scenario.result;
+        output.appendChild(result);
+      }, 300);
+      return;
+    }
+
+    const el = document.createElement('div');
+    el.style.color = '#28c840';
+    el.style.opacity = '0';
+    output.appendChild(el);
+
+    // Type out each char
+    const text = scenario.steps[stepIdx];
+    let charIdx = 0;
+    el.style.transition = 'opacity 0.1s';
+    el.style.opacity = '1';
+
+    const typeChar = () => {
+      if (charIdx < text.length) {
+        el.textContent += text[charIdx++];
+        setTimeout(typeChar, 20 + Math.random() * 30);
+      } else {
+        stepIdx++;
+        setTimeout(addStep, 400);
+      }
+    };
+    typeChar();
+  }
+
+  addStep();
+}
+
+// Auto-play first scenario on load
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    const firstBtn = document.querySelector('.scenario-btn');
+    if (firstBtn) showScenario(0, firstBtn);
+  }, 500);
+});
+</script>
+</body>
+</html>
