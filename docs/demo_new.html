@@ -1,397 +1,609 @@
-﻿<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>B2Btrade Agent - σñûΦ┤╕AIσè⌐µëïσ£¿τ║┐µ╝öτñ║</title>
-<style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0a0a0f; color: #e0e0e0; min-height: 100vh; }
-  .container { max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem; }
-
-  .header { text-align: center; margin-bottom: 2.5rem; }
-  .header h1 { font-size: 2rem; font-weight: 700; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-  .header p { color: #888; margin-top: 0.5rem; }
-  .badge { display: inline-block; background: rgba(102,126,234,0.15); border: 1px solid rgba(102,126,234,0.3); color: #667eea; padding: 4px 14px; border-radius: 20px; font-size: 0.75rem; margin-top: 0.75rem; }
-
-  .terminal-wrap { background: #0d1117; border-radius: 12px; border: 1px solid #21262d; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.6); }
-  .term-bar { background: #161b22; padding: 10px 16px; display: flex; align-items: center; gap: 6px; border-bottom: 1px solid #21262d; }
-  .term-dot { width: 12px; height: 12px; border-radius: 50%; }
-  .dot-red { background: #ff5f57; }
-  .dot-yellow { background: #febc2e; }
-  .dot-green { background: #28c840; }
-  .term-title { color: #666; font-size: 0.8rem; margin-left: 8px; }
-
-  /* Tab buttons */
-  .tabs { display: flex; gap: 2px; padding: 12px 16px 0; background: #0d1117; border-bottom: 1px solid #21262d; flex-wrap: wrap; }
-  .tab-btn { background: transparent; border: 1px solid transparent; color: #666; padding: 8px 14px; border-radius: 6px 6px 0 0; cursor: pointer; font-size: 0.8rem; transition: all 0.2s; border-bottom: 2px solid transparent; }
-  .tab-btn:hover { color: #e0e0e0; background: #161b22; }
-  .tab-btn.active { color: #667eea; background: #0d1117; border-color: #21262d; border-bottom-color: #667eea; }
-
-  .term-body { padding: 1.5rem; min-height: 340px; font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace; font-size: 0.82rem; line-height: 1.65; white-space: pre-wrap; }
-
-  /* Product pills */
-  .product-pills { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
-  .pill { background: #1c2128; border: 1px solid #30363d; color: #8b949e; padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; cursor: pointer; transition: all 0.2s; }
-  .pill:hover { border-color: #667eea; color: #667eea; }
-  .pill.active { background: rgba(102,126,234,0.15); border-color: #667eea; color: #667eea; }
-
-  /* Result panel */
-  .result-panel { background: #010409; border: 1px solid #21262d; border-radius: 8px; padding: 14px; margin-top: 12px; white-space: pre-wrap; font-size: 0.78rem; line-height: 1.6; }
-
-  /* CTA */
-  .cta { text-align: center; margin: 2.5rem 0; }
-  .cta-btn { display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 13px 30px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.95rem; transition: transform 0.2s, box-shadow 0.2s; }
-  .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(102,126,234,0.4); }
-  .cta .sub { color: #555; font-size: 0.78rem; margin-top: 8px; }
-
-  .footer { text-align: center; color: #444; font-size: 0.75rem; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #1a1a1a; }
-  .footer a { color: #667eea; text-decoration: none; }
-
-  .section-label { color: #667eea; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
-  .result-title { color: #28c840; font-weight: 600; margin-bottom: 10px; }
-  .tag { display: inline-block; background: rgba(88,166,255,0.12); color: #58a6ff; padding: 2px 8px; border-radius: 4px; font-size: 0.68rem; margin-right: 4px; }
-
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-  .fade-in { animation: fadeIn 0.4s ease-out; }
-
-  /* Quick stats */
-  .quick-stats { display: flex; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; }
-  .stat { background: #1c2128; border: 1px solid #30363d; border-radius: 8px; padding: 10px 16px; flex: 1; min-width: 100px; }
-  .stat .num { font-size: 1.3rem; font-weight: 700; color: #667eea; }
-  .stat .label { font-size: 0.7rem; color: #666; margin-top: 2px; }
-</style>
-</head>
-<body>
-<div class="container">
-
-  <div class="header fade-in">
-    <h1>B2Btrade Agent</h1>
-    <p>σñûΦ┤╕B2BµÖ║Φâ╜σè⌐µëï ┬╖ AIΘ⌐▒σè¿σ«óµê╖µîûµÄÿ ┬╖ Φ╖ƒΦ┐¢ ┬╖ µèÑΣ╗╖σà¿µ╡üτ¿ï</p>
-    <span class="badge">≡ƒûÑ∩╕Å σ£¿τ║┐µ╝öτñ║ ┬╖ µùáΘ£Çσ«ëΦúà</span>
-  </div>
-
-  <div class="terminal-wrap fade-in">
-    <div class="term-bar">
-      <div class="term-dot dot-red"></div>
-      <div class="term-dot dot-yellow"></div>
-      <div class="term-dot dot-green"></div>
-      <span class="term-title">b2btrade-agent ΓÇö interactive demo</span>
-    </div>
-
-    <!-- Tab buttons -->
-    <div class="tabs">
-      <button class="tab-btn active" onclick="showTab(0, this)">≡ƒöì σ«óµê╖µîûµÄÿ</button>
-      <button class="tab-btn" onclick="showTab(1, this)">≡ƒôï Φ»óτ¢ÿµèÑΣ╗╖</button>
-      <button class="tab-btn" onclick="showTab(2, this)">≡ƒôº σ╝ÇσÅæΣ┐í</button>
-      <button class="tab-btn" onclick="showTab(3, this)">≡ƒæÑ CRMτ«íτÉå</button>
-      <button class="tab-btn" onclick="showTab(4, this)">≡ƒÅ¢∩╕Å σ▒òΣ╝ÜΦÄ╖σ«ó</button>
-    </div>
-
-    <!-- Tab content -->
-    <div class="term-body" id="tab-content"></div>
-  </div>
-
-  <div class="cta">
-    <a href="https://github.com/meo9rhsan3492-cell/b2btrade-agent" class="cta-btn" target="_blank">≡ƒÜÇ τ½ïσì│σ«ëΦúàΣ╜┐τö¿</a>
-    <div class="sub">npm install b2btrade-agent ┬╖ µö»µîü Claude/GPT/Gemini/MiniMax</div>
-  </div>
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B2Btrade Agent - Interactive Demo</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0a0a0f; color: #e0e0e0; min-height: 100vh; }
+  .container { max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  /* Lang switcher */
+  .lang-bar { display: flex; justify-content: flex-end; gap: 4px; margin-bottom: 1rem; }
+  .lang-btn { background: #1c2128; border: 1px solid #30363d; color: #666; padding: 4px 12px; border-radius: 6px; cursor: pointer; font-size: 0.75rem; transition: all 0.2s; }
+  .lang-btn:hover { border-color: #667eea; color: #667eea; }
+  .lang-btn.active { background: rgba(102,126,234,0.15); border-color: #667eea; color: #667eea; }
+
+  .header { text-align: center; margin-bottom: 2.5rem; }
+  .header h1 { font-size: 2rem; font-weight: 700; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .header p { color: #888; margin-top: 0.5rem; }
+  .badge { display: inline-block; background: rgba(102,126,234,0.15); border: 1px solid rgba(102,126,234,0.3); color: #667eea; padding: 4px 14px; border-radius: 20px; font-size: 0.75rem; margin-top: 0.75rem; }
+
+  .terminal-wrap { background: #0d1117; border-radius: 12px; border: 1px solid #21262d; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.6); }
+  .term-bar { background: #161b22; padding: 10px 16px; display: flex; align-items: center; gap: 6px; border-bottom: 1px solid #21262d; }
+  .term-dot { width: 12px; height: 12px; border-radius: 50%; }
+  .dot-red { background: #ff5f57; }
+  .dot-yellow { background: #febc2e; }
+  .dot-green { background: #28c840; }
+  .term-title { color: #666; font-size: 0.8rem; margin-left: 8px; }
+
+  .tabs { display: flex; gap: 2px; padding: 12px 16px 0; background: #0d1117; border-bottom: 1px solid #21262d; flex-wrap: wrap; }
+  .tab-btn { background: transparent; border: 1px solid transparent; color: #666; padding: 8px 14px; border-radius: 6px 6px 0 0; cursor: pointer; font-size: 0.8rem; transition: all 0.2s; border-bottom: 2px solid transparent; }
+  .tab-btn:hover { color: #e0e0e0; background: #161b22; }
+  .tab-btn.active { color: #667eea; background: #0d1117; border-color: #21262d; border-bottom-color: #667eea; }
+
+  .term-body { padding: 1.5rem; min-height: 340px; font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace; font-size: 0.82rem; line-height: 1.65; white-space: pre-wrap; }
+  .result-panel { background: #010409; border: 1px solid #21262d; border-radius: 8px; padding: 14px; margin-top: 12px; white-space: pre-wrap; font-size: 0.78rem; line-height: 1.6; }
+  .cta { text-align: center; margin: 2.5rem 0; }
+  .cta-btn { display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 13px 30px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.95rem; transition: transform 0.2s, box-shadow 0.2s; }
+  .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(102,126,234,0.4); }
+  .cta .sub { color: #555; font-size: 0.78rem; margin-top: 8px; }
+  .footer { text-align: center; color: #444; font-size: 0.75rem; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #1a1a1a; }
+  .footer a { color: #667eea; text-decoration: none; }
+  .section-label { color: #667eea; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .result-title { color: #28c840; font-weight: 600; margin-bottom: 10px; }
+  .tag { display: inline-block; background: rgba(88,166,255,0.12); color: #58a6ff; padding: 2px 8px; border-radius: 4px; font-size: 0.68rem; margin-right: 4px; }
+  .quick-stats { display: flex; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; }
+  .stat { background: #1c2128; border: 1px solid #30363d; border-radius: 8px; padding: 10px 16px; flex: 1; min-width: 100px; }
+  .stat .num { font-size: 1.3rem; font-weight: 700; color: #667eea; }
+  .stat .label { font-size: 0.7rem; color: #666; margin-top: 2px; }
+  .tab-desc { color: #555; font-size: 0.78rem; margin-bottom: 12px; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+  .fade-in { animation: fadeIn 0.4s ease-out; }
+  [lang="zh"] { display: none; }
+  body.zh [lang="en"] { display: none; }
+  body.zh [lang="zh"] { display: block; }
+  body.zh .term-body { white-space: pre-wrap; }
+  body.zh .tab-btn { font-family: 'Segoe UI', sans-serif; white-space: normal; text-align: center; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="lang-bar">
+    <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" id="btn-zh" onclick="setLang('zh')">中文</button>
+  </div>
+
+  <div class="header fade-in">
+    <h1>B2Btrade Agent</h1>
+    <p lang="en">Foreign Trade B2B AI Assistant · Intelligent Lead Generation · Inquiries · Quotes</p>
+    <p lang="zh">外贸B2B智能助手 · AI驱动客户挖掘 · 询盘跟进 · 报价全流程</p>
+    <span class="badge" lang="en">🖥️ Online Demo · No Install Required</span>
+    <span class="badge" lang="zh">🖥️ 在线演示 · 无需安装</span>
+  </div>
+
+  <div class="terminal-wrap fade-in">
+    <div class="term-bar">
+      <div class="term-dot dot-red"></div>
+      <div class="term-dot dot-yellow"></div>
+      <div class="term-dot dot-green"></div>
+      <span class="term-title">b2btrade-agent — interactive demo</span>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="showTab(0, this)" lang="en">🔍 Lead Gen</button>
+      <button class="tab-btn" onclick="showTab(1, this)" lang="en">📋 Quotes</button>
+      <button class="tab-btn" onclick="showTab(2, this)" lang="en">📧 Cold Email</button>
+      <button class="tab-btn" onclick="showTab(3, this)" lang="en">👥 CRM</button>
+      <button class="tab-btn" onclick="showTab(4, this)" lang="en">🏛️ Trade Show</button>
+
+      <button class="tab-btn" onclick="showTab(0, this)" lang="zh">🔍 客户挖掘</button>
+      <button class="tab-btn" onclick="showTab(1, this)" lang="zh">📋 询盘报价</button>
+      <button class="tab-btn" onclick="showTab(2, this)" lang="zh">📧 开发信</button>
+      <button class="tab-btn" onclick="showTab(3, this)" lang="zh">👥 CRM管理</button>
+      <button class="tab-btn" onclick="showTab(4, this)" lang="zh">🏛️ 展会获客</button>
+    </div>
+
+    <div class="term-body" id="tab-content"></div>
+  </div>
+
+  <div class="cta">
+    <a href="https://github.com/meo9rhsan3492-cell/b2btrade-agent" class="cta-btn" target="_blank" lang="en">🚀 Get Started</a>
+    <a href="https://github.com/meo9rhsan3492-cell/b2btrade-agent" class="cta-btn" target="_blank" lang="zh">🚀 立即安装使用</a>
+    <div class="sub" lang="en">npm install b2btrade-agent · Claude / GPT / Gemini / MiniMax</div>
+    <div class="sub" lang="zh">npm install b2btrade-agent · 支持 Claude/GPT/Gemini/MiniMax</div>
+  </div>
+
   <div class="footer">
-    <a href="../index.html" style="color:#667eea;text-decoration:none"> Homepage</a> · 
-    <a href="https://github.com/meo9rhsan3492-cell/b2btrade-agent">GitHub</a> ┬╖
-    <a href="https://github.com/meo9rhsan3492-cell/b2btrade-agent/blob/main/CHANGELOG.md">µ¢┤µû░µùÑσ┐ù</a> ┬╖
-    v1.1.0 ┬╖ MIT License
-  </div>
-</div>
-
-<script>
-const TAB_DATA = [
-  {
-    label: '≡ƒöì σ«óµê╖µîûµÄÿ',
-    icon: '≡ƒöì',
-    desc: 'Φ╛ôσàÑΣ║ºσôüσÆîτ¢«µáçσ╕éσ£║∩╝îAIΦç¬σè¿µë╛σê░τ£ƒσ«₧ΘççΦ┤¡σòå',
-    steps: [
-      '≡ƒÄ» µ¡úσ£¿µÖ║Φâ╜σêåµ₧É∩╝ÜTWSΦô¥τëÖΦÇ│µ£║ + τ╛Äσ¢╜σ╕éσ£║',
-      '≡ƒîÉ µÉ£τ┤ó LinkedIn ΘççΦ┤¡σòåµíúµíê...',
-      'Γ£à σî╣Θàìσê░ 38 σ«╢µ╜£σ£¿σ«óµê╖∩╝êσ╣┤ΘççΦ┤¡ΘçÅ>$100K∩╝ë',
-      '≡ƒöì Θ¬îΦ»üΣ╝üΣ╕ÜΘé«τ«▒µ£ëµòêµÇº...',
-      'Γ£à µ£ëµòêΘé«τ«▒ 31 σ«╢∩╝îµïªµê¬µùáµòêΘé«τ«▒ 7 σ«╢',
-      '≡ƒÅå τ¡¢ΘÇëΘ½ÿµäÅσÉæσ«óµê╖∩╝êΦ┐æ6Σ╕¬µ£êµ£ëτ¢╕σà│ΘççΦ┤¡Φ«░σ╜ò∩╝ë',
-      '≡ƒôè σ╛ùσç║τ╗ôΦ«║∩╝ÜΘ½ÿσî╣Θàì 12 σ«╢∩╝îΣ╕¡σî╣Θàì 15 σ«╢'
-    ],
-    result: `<span class="result-title">Γ£à σ«óµê╖µîûµÄÿτ╗ôµ₧£</span>
-<div class="quick-stats">
-  <div class="stat"><div class="num">38</div><div class="label">µ╜£σ£¿σ«óµê╖</div></div>
-  <div class="stat"><div class="num">31</div><div class="label">µ£ëµòêΘé«τ«▒</div></div>
-  <div class="stat"><div class="num">12</div><div class="label">Θ½ÿσî╣Θàì</div></div>
-  <div class="stat"><div class="num">5</div><div class="label">VIP(5µÿƒ)</div></div>
-</div>
-<div class="section-label">TOP 3 Θ½ÿσî╣Θàìσ«óµê╖</div>
-<span class="tag">Γ¡ÉΓ¡ÉΓ¡ÉΓ¡ÉΓ¡É VIP</span> <strong>AudioMax Distribution LLC</strong> ΓÇö τ╛Äσ¢╜σèáσ╖₧∩╝îσ╣┤ΘççΦ┤¡ΘçÅ$2.4M∩╝îΣ╕ôµ│¿µ╢êΦ┤╣τö╡σ¡É
-  ≡ƒôº procurement@audio-max.com ┬╖ LinkedIn: 15K+ followers ┬╖ Φ┐æµ£ƒσ£¿µë╛TWSΣ╛¢σ║öσòå
-  ≡ƒÆí ΘççΦ┤¡σå│τ¡ûΣ║║: Mike Johnson, Head of Procurement
-  ≡ƒÄ» σêçσàÑσ╗║Φ««: σ╝║Φ░âFDA/CEΦ«ñΦ»ü∩╝îµ£ëBose/JBLσÉêΣ╜£τ╗ÅΘ¬î
-
-<span class="tag">Γ¡ÉΓ¡ÉΓ¡ÉΓ¡ÉΓ¡É VIP</span> <strong>SoundWave Electronics Inc</strong> ΓÇö τ╛Äσ¢╜σ╛╖σ╖₧∩╝îσ╣┤ΘççΦ┤¡ΘçÅ$1.8M∩╝îτö╡σòåµ╕áΘüôΣ╕║Σ╕╗
-  ≡ƒôº buyer@soundwave-elec.com ┬╖ Amazonσ╣┤ΘöÇσö«Θó¥$8M+
-  ≡ƒÆí σêçσàÑσ╗║Φ««: σ╝║Φ░âσ┐½ΘÇƒΣ║ñµ£ƒ+ΘÇÇµìóΦ┤ºµö┐τ¡û∩╝îτö╡σòåµ£Çσà│σ┐âτ┐╗Φ┤ºτÄç
-
-<span class="tag">Γ¡ÉΓ¡ÉΓ¡ÉΓ¡É</span> <strong>Pacific Tech Goods</strong> ΓÇö τ╛Äσ¢╜σìÄτ¢¢Θí┐σ╖₧∩╝îσ╣┤ΘççΦ┤¡ΘçÅ$600K∩╝îτ║┐Σ╕ïµ╕áΘüô
-  ≡ƒôº info@pacifictech.com
-  ≡ƒÆí σêçσàÑσ╗║Φ««: µö»µîüσ«Üσê╢Logo∩╝îΘÇéσÉêτñ╝σôü/Σ╝üΣ╕ÜΘççΦ┤¡µ╕áΘüô`
-  },
-  {
-    label: '≡ƒôï Φ»óτ¢ÿµèÑΣ╗╖',
-    icon: '≡ƒôï',
-    desc: 'σêåµ₧ÉΦ»óτ¢ÿ∩╝îτ╗Öσç║µèÑΣ╗╖σìòσÆîΦ░êσêñτ¡ûτòÑ',
-    steps: [
-      '≡ƒôÑ µö╢σê░Φ»óτ¢ÿ∩╝Ü50,000Σ╗╢Φô¥τëÖΘƒ│τ«▒∩╝îµ│òσà░σàïτªÅσ▒òΣ╝ÜτÄ░σ£║Σ║ñµìó',
-      '≡ƒöì σêåµ₧Éσ«óµê╖τö╗σâÅ∩╝Üσ╛╖σ¢╜Φ┐¢σÅúσòå ┬╖ σñºσ₧ïΦ┤╕µÿôσà¼σÅ╕ ┬╖ Σ╕ôΣ╕ÜΘççΦ┤¡σòå',
-      'Γ£à Θ£Çµ▒éτ£ƒσ«₧µÇº∩╝ÜΘ½ÿ∩╝êµ£ëσà╖Σ╜ôµò░ΘçÅ+Σ║ñΦ┤ºσ£░+σ╜ôσ£║σÉìτëç∩╝ë',
-      '≡ƒôè HSτ╝ûτáüΦ»åσê½∩╝Ü8518.30∩╝êΦÇ│µ£║/Θƒ│τ«▒∩╝ë∩╝îΘÇÇτ¿ÄτÄç13%∩╝îµùáσç║σÅúτ«íσê╢',
-      '≡ƒÆ░ Φ«íτ«ùµêÉµ£¼∩╝ÜFOBµ╖▒σ£│ $4.20/Σ╗╢ ┬╖ CIFµ▒ëσáí $4.85/Σ╗╢',
-      '≡ƒôä τöƒµêÉ Proforma Invoice...'
-    ],
-    result: `<span class="result-title">≡ƒôä Proforma Invoice</span>
-<div class="section-label">PI-20260326-001 | µ£ëµòêµ£ƒ∩╝Ü30σñ⌐</div>
-
-<span class="tag">σìûµû╣</span> ABC Electronics Co., Ltd.
-  µ╖▒σ£│σ«¥σ«ëσî║ΦÑ┐Σ╣íΦíùΘüôXXXσÅ╖ ┬╖ Tel: +86-755-XXXXXXX
-
-<span class="tag">Σ╣░µû╣</span> AudioTech Handels GmbH
- µ│òσà░σàïτªÅσ╖ÑΣ╕ÜΦ╖»XXXσÅ╖ ┬╖ VAT: DEXXXXXXXXX
-
-<span class="tag">σòåσôüµÿÄτ╗å</span>
-<table style="width:100%;border-collapse:collapse;margin:8px 0">
-<tr style="background:#1c2128"><th style="padding:6px 8px;text-align:left;font-size:0.72rem">σôüσÉì</th><th style="padding:6px 8px;text-align:right;font-size:0.72rem">µò░ΘçÅ</th><th style="padding:6px 8px;text-align:right;font-size:0.72rem">FOBσìòΣ╗╖</th><th style="padding:6px 8px;text-align:right;font-size:0.72rem">µÇ╗Σ╗╖</th></tr>
-<tr><td style="padding:6px 8px;border-bottom:1px solid #21262d;font-size:0.78rem">TWSΦô¥τëÖΦÇ│µ£║ M20∩╝êΘ╗æτÖ╜Σ╕ñΦë▓∩╝ë</td><td style="padding:6px 8px;border-bottom:1px solid #21262d;text-align:right;font-size:0.78rem">50,000Σ╗╢</td><td style="padding:6px 8px;border-bottom:1px solid #21262d;text-align:right;font-size:0.78rem">$4.20</td><td style="padding:6px 8px;border-bottom:1px solid #21262d;text-align:right;font-size:0.78rem">$210,000</td></tr>
-<tr><td style="padding:6px 8px;border-bottom:1px solid #21262d;font-size:0.78rem">Φô¥τëÖΘƒ│τ«▒ BS50</td><td style="padding:6px 8px;border-bottom:1px solid #21262d;text-align:right;font-size:0.78rem">20,000Σ╗╢</td><td style="padding:6px 8px;border-bottom:1px solid #21262d;text-align:right;font-size:0.78rem">$6.80</td><td style="padding:6px 8px;border-bottom:1px solid #21262d;text-align:right;font-size:0.78rem">$136,000</td></tr>
-<tr style="background:#1c2128"><td colspan=3 style="padding:6px 8px;font-weight:600;text-align:right">σÉêσÉîµÇ╗Σ╗╖ (FOB)</td><td style="padding:6px 8px;text-align:right;font-weight:700;color:#28c840">$346,000</td></tr>
-</table>
-
-<span class="tag">Φ┤╕µÿôµ£»Φ»¡</span> FOB Shenzhen ┬╖ <span class="tag">Σ╗ÿµ¼╛</span> T/T 30% deposit + 70% BL copy
-<span class="tag">Σ║ñΦ┤ºµ£ƒ</span> 45 days after deposit ┬╖ <span class="tag">σîàΦúà</span> 50pcs/ctn, 500ctns/20GP
-
-<span class="tag" style="background:rgba(255,184,77,0.12);color:#ffb84d">≡ƒÆí Φ░êσêñσ╗║Φ««</span>
-σ«óµê╖σÅ»Φâ╜σÄïΣ╗╖ $0.3-0.5/Σ╗╢∩╝îΦ«⌐µ¡Ñσ║òτ║┐∩╝ÜTWS $3.90, Θƒ│τ«▒ $6.50
-σ╛╖σ¢╜σ«óµê╖ΘçìΦºå CE Φ«ñΦ»üσÆî REACH τÄ»Σ┐¥µáçσçå∩╝îσ╗║Φ««Σ╕╗σè¿µÅÉΣ╛¢Φ»üΣ╣ªµ╕àσìò`
-  },
-  {
-    label: '≡ƒôº σ╝ÇσÅæΣ┐í',
-    icon: '≡ƒôº',
-    desc: 'AIτöƒµêÉΣ╕¬µÇºσîûσ╝ÇσÅæΣ┐í∩╝îµö»µîüσñÜΦ»¡Φ¿ÇσñÜµ╕áΘüô',
-    steps: [
-      '≡ƒôï ΘÇëσ«Üτ¢«µáç∩╝ÜTWSΦô¥τëÖΦÇ│µ£║ + τ╛Äσ¢╜σèáσ╖₧ AudioMax Distribution',
-      '≡ƒöì Φ░âτáöσ«óµê╖ΦâîµÖ»∩╝Üσà¼σÅ╕µêÉτ½ïΣ║Ä2008σ╣┤∩╝îΣ╕ôµ│¿Θ½ÿτ½»Θƒ│Θóæ...',
-      'Γ£ì∩╕Å AIτöƒµêÉΣ╕¬µÇºσîûσ╝ÇσÅæΣ┐í∩╝êσ╖▓σ╡îσàÑσ«óµê╖τ£ƒσ«₧Σ┐íµü»∩╝ë',
-      '≡ƒîÉ τ┐╗Φ»æΣ╕║Φï▒µûçτëêµ£¼∩╝êσÉîµù╢τöƒµêÉΦÑ┐τÅ¡τëÖΦ»¡τëêµ£¼σñçτö¿∩╝ë',
-      '≡ƒôÄ ΘÖäσ╕ªΣ║ºσôüΦ╡äµûÖΘÖäΣ╗╢Θô╛µÄÑ',
-      'Γ£à 2σ░üΘé«Σ╗╢σ╖▓τöƒµêÉ∩╝îσÅ»τ¢┤µÄÑσñìσê╢Σ╜┐τö¿'
-    ],
-    result: `<span class="result-title">≡ƒôº σ╝ÇσÅæΣ┐íΘóäΦºê</span>
-
-<span class="tag">µö╢Σ╗╢Σ║║</span> Mike Johnson ┬╖ Head of Procurement ┬╖ AudioMax Distribution LLC
-<span class="tag">Σ╕╗Θóÿ</span> Quick Question: TWS Earbuds with CE/FCC ΓÇö Looking for Steady Supplier [USA Import]
-
----
-
-Dear Mike,
-
-I came across AudioMax's strong presence in the premium audio segment ΓÇö your recent partnership with JLab Audio caught my attention.
-
-We're ABC Electronics, a Shenzhen-based manufacturer specializing in TWS earbuds and Bluetooth speakers, with annual production capacity of 500,000 units.
-
-Why I'm reaching out: We're currently supplying 3 brands in your region and looking to expand. Your Amazon ratings (4.3Γÿà avg) suggest you're selective about supplier quality ΓÇö which aligns perfectly with what we do.
-
-What we can offer:
-Γ£à CE/FCC/RoHS certified (test reports ready)
-Γ£à 6+ years Amazon seller experience
-Γ£à 45-day lead time, with 10-day rush option
-Γ£à Custom logo and packaging at no extra cost
-
-I'd love to share our catalog and a sample unit for your evaluation. Would a quick 15-min call this week work for you?
-
-Best regards,
-Li Wei
-Sales Manager | ABC Electronics Co., Ltd.
-≡ƒôº sales@abcelectronics.cn | ≡ƒô▒ +86 138 XXXX XXXX
-≡ƒöù abcelectronics.cn | ≡ƒô╕ @abcelectronics_official
-
----
-<span style="color:#444;font-size:0.7rem">Spanish version (for Latin America outreach) also generated</span>`
-  },
-  {
-    label: '≡ƒæÑ CRMτ«íτÉå',
-    icon: '≡ƒæÑ',
-    desc: 'σ«óµê╖σà¿τöƒσæ╜σæ¿µ£ƒΦ┐╜Φ╕¬∩╝îΘÇ╛µ£ƒµÅÉΘåÆ∩╝îτ«íΘüôσêåµ₧É',
-    steps: [
-      '≡ƒôè σèáΦ╜╜ CRM Σ╗¬Φí¿τ¢ÿ...',
-      '≡ƒöÑ Aτ║ºσ«óµê╖∩╝Ü12σ«╢ | τ«íΘüôµÇ╗Θó¥∩╝Ü$2,840,000',
-      'ΓÜá∩╕Å  ΘÇ╛µ£ƒΦ╖ƒΦ┐¢∩╝Ü7µ¥í∩╝êµ£¼σæ¿Θ£ÇσñäτÉå∩╝ë',
-      '≡ƒôà µ£¬µ¥Ñ7σñ⌐σê░µ£ƒµÅÉΘåÆ∩╝Ü9µ¥í',
-      '≡ƒôê µ£¼µ£êµû░σó₧τ║┐τ┤ó∩╝Ü34σ«╢ | Φ╜¼σîûτÄç∩╝Ü18%',
-      '≡ƒÆ░ ΘóäΦ«íµ£¼µ£êσÅ»µêÉΣ║ñ∩╝Ü$156,000'
-    ],
-    result: `<span class="result-title">≡ƒôè CRM Σ╗¬Φí¿τ¢ÿ</span>
-<div class="quick-stats">
-  <div class="stat"><div class="num">89</div><div class="label">σ«óµê╖µÇ╗µò░</div></div>
-  <div class="stat"><div class="num">$2.84M</div><div class="label">τ«íΘüôΘçæΘó¥</div></div>
-  <div class="stat"><div class="num">12</div><div class="label">Aτ║ºσ«óµê╖</div></div>
-  <div class="stat"><div class="num">$580K</div><div class="label">σ╖▓µêÉΣ║ñ</div></div>
-</div>
-
-<div class="section-label">σ«óµê╖Θÿ╢µ«╡σêåσ╕â</div>
-≡ƒª╖ τ║┐τ┤ó      23σ«╢  ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûæΓûæΓûæΓûæ  $156,000
-≡ƒÄ» µäÅσÉæτí«Φ«ñ  18σ«╢  ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûæΓûæΓûæΓûæΓûæΓûæΓûæΓûæ  $680,000
-≡ƒñ¥ Φ░êσêñΣ╕¡    11σ«╢  ΓûêΓûêΓûêΓûêΓûêΓûæΓûæΓûæΓûæΓûæΓûæΓûæΓûæΓûæΓûæΓûæ  $1,200,000
-≡ƒô¥ σÉêσÉîΘÿ╢µ«╡   5σ«╢  ΓûêΓûêΓûêΓûæΓûæΓûæΓûæΓûæΓûæΓûæΓûæΓûæΓûæΓûæΓûæΓûæ  $340,000
-Γ£à σ╖▓µêÉΣ║ñ    32σ«╢  ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûæΓûæΓûæ  $580,000 (MTD)
-
-<div class="section-label">ΓÜá∩╕Å  ΘÇ╛µ£ƒΦ╖ƒΦ┐¢∩╝êµ£¼σæ¿σ┐àσñäτÉå∩╝ë</div>
-≡ƒö┤ AudioMax LLC ΓÇö Φ╖ƒΦ┐¢µèÑΣ╗╖∩╝êΘÇ╛µ£ƒ <b>3σñ⌐</b>∩╝ë┬╖ τ«íΘüôΘçæΘó¥ $210,000
-≡ƒö┤ SoundWave Electronics ΓÇö τí«Φ«ñµá╖σôü∩╝êΘÇ╛µ£ƒ <b>5σñ⌐</b>∩╝ë┬╖ $136,000
-≡ƒö┤ Pacific Tech Goods ΓÇö σ»äΘÇüτ¼¼3µë╣Φ┤º∩╝êΘÇ╛µ£ƒ <b>1σñ⌐</b>∩╝ë┬╖ $68,000
-≡ƒö┤ Nordic Electronics AB ΓÇö Φ╖ƒΦ┐¢σÉêσÉî∩╝êΘÇ╛µ£ƒ <b>2σñ⌐</b>∩╝ë┬╖ $95,000
-≡ƒö┤ Brasil Import Co. ΓÇö τí«Φ«ñPI∩╝êΘÇ╛µ£ƒ <b>7σñ⌐</b>∩╝ë┬╖ $45,000
-
-<div class="section-label">≡ƒÆí Φíîσè¿σ╗║Φ««</div>
-µ£¼σæ¿Σ╝ÿσàêΦüöτ│╗σëì2Σ╕¬Aτ║ºσ«óµê╖∩╝îΘóäΦ«íσÅ»Φ╜¼σîû $346,000∩╝¢AudioMax σ╖▓µ£ëµÿÄτí«µäÅσÉæ∩╝îµêÉσèƒτÄç>60%`
-  },
-  {
-    label: '≡ƒÅ¢∩╕Å σ▒òΣ╝ÜΦÄ╖σ«ó',
-    icon: '≡ƒÅ¢∩╕Å',
-    desc: 'σ╣┐Σ║ñΣ╝Ü/σ▒òΣ╝ÜσÉìτëçµÖ║Φâ╜τ«íτÉå∩╝î72σ░Åµù╢Θ╗äΘçæΦ╖ƒΦ┐¢',
-    steps: [
-      '≡ƒôì σ╣┐Σ║ñΣ╝Ü2026µÿÑσ¡ú ┬╖ σ╣┐σ╖₧τÉ╢µ┤▓ ┬╖ Booth 8A-12',
-      '≡ƒÅ╖∩╕Å  σ▒òΣ╝Ü3σñ⌐σà▒µö╢Θ¢åσÉìτëç∩╝Ü<b>238σ╝á</b>',
-      'Γ¡É  Θ½ÿΦ┤¿ΘçÅτ║┐τ┤ó∩╝êLeadQuality ΓëÑ 4µÿƒ∩╝ë∩╝Ü<b>31σ«╢</b>',
-      '≡ƒö┤  VIP∩╝ê5µÿƒ∩╝ë∩╝Ü<b>9σ«╢</b> ΓÇö µ£ëµÿÄτí«ΘççΦ┤¡µäÅσÉæ',
-      '≡ƒºá AIσêåµ₧É∩╝Ü6σ«╢µ¥ÑΦç¬Σ╕£σìùΣ║Ü∩╝î3σ«╢Σ╕¡Σ╕£∩╝î2σ«╢σìùτ╛Ä',
-      '≡ƒôº Φç¬σè¿σê¢σ╗║σ▒òσÉÄΦ╖ƒΦ┐¢σ║Åσêù∩╝êDay1/3/7/14∩╝ë...',
-      'Γ£à σ▒òσÉÄ72σ░Åµù╢Φ╖ƒΦ┐¢σ║Åσêùσ╖▓σÉ»σè¿∩╝îσÅæΘÇüτ╗Öσà¿Θâ¿31σ«╢Θ½ÿΦ┤¿τ║┐τ┤ó'
-    ],
-    result: `<span class="result-title">≡ƒÅ¢∩╕Å σ╣┐Σ║ñΣ╝Ü2026µÿÑσ¡ú σ▒òΣ╝ÜµÇ╗τ╗ô</span>
-<div class="quick-stats">
-  <div class="stat"><div class="num">238</div><div class="label">µö╢Θ¢åσÉìτëç</div></div>
-  <div class="stat"><div class="num">31</div><div class="label">Θ½ÿΦ┤¿ΘçÅτ║┐τ┤ó</div></div>
-  <div class="stat"><div class="num">9</div><div class="label">VIP(5µÿƒ)</div></div>
-  <div class="stat"><div class="num">$4.2M</div><div class="label">ΘóäΣ╝░τ«íΘüô</div></div>
-</div>
-
-<div class="section-label">Γ¡É VIP τ║┐τ┤ó∩╝ê5µÿƒ = µÿÄτí«µäÅσÉæ∩╝îΣ╝ÿσàêΦ╖ƒΦ┐¢∩╝ë</div>
-<span class="tag">Γ¡ÉΓ¡ÉΓ¡ÉΓ¡ÉΓ¡É VIP</span> <strong>PT Teknologi Nusantara</strong> ΓÇö σì░σ║ªσ░╝ΦÑ┐Σ║ÜΘ¢àσèáΦ╛╛
-  ≡ƒÆ╝ σ╣┤ΦÉÑµö╢$50M∩╝îΣ╕ôµ│¿µ╢êΦ┤╣τö╡σ¡ÉΦ┐¢σÅú
-  ≡ƒôº procurement@teknusantara.co.id
-  ≡ƒôª τ¢«µáçΣ║ºσôü∩╝ÜTWSΦÇ│µ£║ 20KΣ╗╢∩╝îΦô¥τëÖΘƒ│τ«▒ 10KΣ╗╢
-  ≡ƒÆí σ▒òΣ╝ÜτÄ░σ£║σ╖▓τí«Φ«ñµá╖σôü∩╝îµäÅσÉæµ₧üσ╝║∩╝îσ╗║Φ««Day1Σ╝ÿσàêΦüöτ│╗
-
-<span class="tag">Γ¡ÉΓ¡ÉΓ¡ÉΓ¡ÉΓ¡É VIP</span> <strong>Riyadh Electronics Co.</strong> ΓÇö µ▓Öτë╣σê⌐Θ¢àσ╛ù
-  ≡ƒÆ╝ µ▓Öτë╣µ£Çσñºτö╡σÖ¿σêåΘöÇσòåΣ╣ïΣ╕Ç∩╝îσ╣┤ΘççΦ┤¡$8M+
-  ≡ƒôº bulk@riyadhelec.sa
-  ≡ƒôª τ¢«µáçΣ║ºσôü∩╝ÜTWS+Φô¥τëÖΘƒ│τ«▒∩╝îµòúσìò+Φç¬µ£ëσôüτëî
-  ≡ƒÆí σ╖▓µ£ëΦç¬µ£ëσôüτëîσÉêΣ╜£µäÅσÉæ∩╝îΘ£ÇµÅÉΣ╛¢FOBµèÑΣ╗╖
-
-<span class="tag">Γ¡ÉΓ¡ÉΓ¡ÉΓ¡ÉΓ¡É VIP</span> <strong>Grupo Importech</strong> ΓÇö σó¿ΦÑ┐σôÑσƒÄ
-  ≡ƒÆ╝ µïëΣ╕üτ╛Äµ┤▓σëìΣ║öτö╡σòåσ╣│σÅ░∩╝îσ╣┤σó₧Γ╗ô40%
-  ≡ƒôº compras@importech.mx
-  ≡ƒôª τ¢«µáç∩╝ÜTWS 50KΣ╗╢∩╝îQ4µù║σ¡úσñçΦ┤º
-  ≡ƒÆí τ½₧σôüµèÑΣ╗╖σ╖▓σ£¿µëï∩╝îΣ╗╖µá╝µòÅµäƒ∩╝îΘ£Çσ╝║Φ░âΦ┤¿ΘçÅ+Σ║ñµ£ƒ
-
-<div class="section-label">≡ƒôº σ▒òσÉÄ72hΦ╖ƒΦ┐¢σ║Åσêù</div>
-Γ£à Day1 (σ╖▓σ«îµêÉ) ΓÇö µäƒΦ░óΘé«Σ╗╢ + Σ║ºσôüµëïσåî PDF σ╖▓σÅæΘÇüΦç│ 31 σ«╢
-Γ¼£ Day3 ΓÇö Σ╕¬µÇºσîûµèÑΣ╗╖ + σ▒òΣ╝ÜΣ╕ôσ▒₧Σ╝ÿµâá∩╝ê$0.15/Σ╗╢µèÿµëú∩╝ë
-Γ¼£ Day7 ΓÇö µíêΣ╛ïσêåΣ║½ + µá╖σôüσÅæΦ┤ºΘÇÜτƒÑ
-Γ¼£ Day14 ΓÇö σ▒òΣ╝ÜΘÖÉµù╢Σ╝ÿµâáσÇÆΦ«íµù╢∩╝ê7σñ⌐σåàµ£ëµòê∩╝ë
-Γ¼£ Day30 ΓÇö Σ┐¥µîüΦüöτ│╗ + Q4µù║σ¡úσñçΦ┤ºµÅÉΘåÆ`
-  }
-];
-
-let currentTab = 0;
-let stepIntervals = [];
-
-function showTab(idx, btn) {
-  currentTab = idx;
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-
-  // Clear all intervals
-  stepIntervals.forEach(clearInterval);
-  stepIntervals = [];
-
-  const data = TAB_DATA[idx];
-  const content = document.getElementById('tab-content');
-  content.innerHTML = '';
-
-  // Header
-  const header = document.createElement('div');
-  header.style.marginBottom = '12px';
-  header.innerHTML = `<div style="color:#667eea;font-weight:700;margin-bottom:4px">${data.label}</div><div style="color:#555;font-size:0.78rem">${data.desc}</div>`;
-  content.appendChild(header);
-
-  // Steps container
-  const stepsEl = document.createElement('div');
-  stepsEl.style.marginBottom = '10px';
-  content.appendChild(stepsEl);
-
-  // Result container
-  const resultEl = document.createElement('div');
-  resultEl.style.display = 'none';
-  resultEl.className = 'result-panel';
-  content.appendChild(resultEl);
-
-  // Animate steps
-  let stepIdx = 0;
-  let stepTimeout = null;
-
-  function addStep() {
-    if (stepIdx >= data.steps.length) {
-      // Show result
-      stepTimeout = setTimeout(() => {
-        resultEl.style.display = 'block';
-        resultEl.className = 'result-panel fade-in';
-        resultEl.innerHTML = data.result;
-      }, 400);
-      return;
-    }
-
-    const el = document.createElement('div');
-    el.style.color = '#28c840';
-    el.style.opacity = '0';
-    el.style.transition = 'opacity 0.15s';
-    el.style.marginBottom = '3px';
-    stepsEl.appendChild(el);
-
-    // Typing effect
-    const text = data.steps[stepIdx];
-    let charIdx = 0;
-    el.style.opacity = '1';
-
-    const typeInterval = setInterval(() => {
-      if (charIdx < text.length) {
-        el.textContent += text[charIdx++];
-      } else {
-        clearInterval(typeInterval);
-        stepIdx++;
-        const delay = stepIdx >= data.steps.length ? 300 : 350;
-        stepTimeout = setTimeout(addStep, delay);
-      }
-    }, 18 + Math.random() * 22);
-
-    stepIntervals.push(typeInterval);
-  }
-
-  stepTimeout = setTimeout(addStep, 300);
-  stepIntervals.push(null); // marker
-}
-
-// Auto-play first tab
-window.addEventListener('load', () => {
-  setTimeout(() => {
-    const firstBtn = document.querySelector('.tab-btn');
-    if (firstBtn) showTab(0, firstBtn);
-  }, 600);
-});
-</script>
-</body>
-</html>
+    <a href="../index.html" lang="en">← Back to Homepage</a>
+    <a href="../index.html" lang="zh">← 返回主页</a>
+    · <a href="https://github.com/meo9rhsan3492-cell/b2btrade-agent" target="_blank" lang="en">GitHub</a>
+    <a href="https://github.com/meo9rhsan3492-cell/b2btrade-agent" target="_blank" lang="zh">GitHub</a>
+    · v1.1.0 · MIT License
+  </div>
+</div>
+
+<script>
+const T = {
+  en: [
+    {
+      desc: 'Enter product + market, AI finds real buyers instantly',
+      steps: [
+        '🎯 Analyzing: TWS Earbuds + United States market',
+        '🌐 Searching LinkedIn buyer profiles...',
+        '✅ Matched 38 potential buyers (annual volume > $100K)',
+        '🔍 Verifying email deliverability...',
+        '✅ 31 valid emails, blocked 7 invalid',
+        '🏆 Filtering high-intent buyers (active sourcing in last 6 months)',
+        '📊 Result: 12 High Match · 15 Medium Match'
+      ],
+      result: `<span class="result-title">✅ Lead Generation Result</span>
+<div class="quick-stats">
+  <div class="stat"><div class="num">38</div><div class="label">Potential</div></div>
+  <div class="stat"><div class="num">31</div><div class="label">Valid Emails</div></div>
+  <div class="stat"><div class="num">12</div><div class="label">High Match</div></div>
+  <div class="stat"><div class="num">5</div><div class="label">VIP (5★)</div></div>
+</div>
+<div class="section-label">TOP 3 HIGH MATCH CLIENTS</div>
+<span class="tag">⭐⭐⭐⭐⭐ VIP</span> <strong>AudioMax Distribution LLC</strong> — California, USA · Annual spend $2.4M · Consumer electronics
+  📧 procurement@audio-max.com · LinkedIn: 15K+ followers
+  💡 Decision maker: Mike Johnson, Head of Procurement
+  🎯 Angle: Emphasize FDA/CE certifications, prior Bose/JBL partnerships
+
+<span class="tag">⭐⭐⭐⭐⭐ VIP</span> <strong>SoundWave Electronics Inc</strong> — Texas, USA · Annual spend $1.8M · E-commerce channel
+  📧 buyer@soundwave-elec.com · Amazon sales $8M+/year
+  💡 Angle: Fast delivery + return policy, e-comm retailers care about return rates
+
+<span class="tag">⭐⭐⭐⭐</span> <strong>Pacific Tech Goods</strong> — Washington, USA · Annual spend $600K · Offline channel
+  📧 info@pacifictech.com
+  💡 Angle: Custom logo support, ideal for corporate/gift procurement`
+    },
+    {
+      desc: 'Analyze inquiries, generate quotes with negotiation strategy',
+      steps: [
+        '📥 Incoming inquiry: 50,000 pcs Bluetooth Speaker, Frankfurt Trade Show booth exchange',
+        '🔍 Profiling: German importer · Large trading company · Professional buyer',
+        '✅ Intent authenticity: High (specific quantity + delivery location + business card)',
+        '📊 HS Code: 8518.30 (Headphones/Speakers) · Export rebate 13% · No export controls',
+        '💰 Pricing: FOB Shenzhen $4.20/pc · CIF Hamburg $4.85/pc',
+        '📄 Generating Proforma Invoice...'
+      ],
+      result: `<span class="result-title">📄 Proforma Invoice</span>
+<div class="section-label">PI-20260326-001 | Valid: 30 days</div>
+
+<span class="tag">Seller</span> ABC Electronics Co., Ltd.
+  Shenzhen, China · Tel: +86-755-XXXXXXX
+
+<span class="tag">Buyer</span> AudioTech Handels GmbH
+  Frankfurt, Germany · VAT: DEXXXXXXXXX
+
+<span class="tag">Items</span>
+<table style="width:100%;border-collapse:collapse;margin:8px 0">
+<tr style="background:#1c2128"><th style="padding:6px 8px;text-align:left;font-size:0.72rem">Product</th><th style="padding:6px 8px;text-align:right;font-size:0.72rem">Qty</th><th style="padding:6px 8px;text-align:right;font-size:0.72rem">FOB Unit</th><th style="padding:6px 8px;text-align:right;font-size:0.72rem">Total</th></tr>
+<tr><td style="padding:6px 8px;border-bottom:1px solid #21262d;font-size:0.78rem">TWS Earbuds M20 (Black/White)</td><td style="padding:6px 8px;border-bottom:1px solid #21262d;text-align:right;font-size:0.78rem">50,000 pcs</td><td style="padding:6px 8px;border-bottom:1px solid #21262d;text-align:right;font-size:0.78rem">$4.20</td><td style="padding:6px 8px;border-bottom:1px solid #21262d;text-align:right;font-size:0.78rem">$210,000</td></tr>
+<tr><td style="padding:6px 8px;border-bottom:1px solid #21262d;font-size:0.78rem">Bluetooth Speaker BS50</td><td style="padding:6px 8px;border-bottom:1px solid #21262d;text-align:right;font-size:0.78rem">20,000 pcs</td><td style="padding:6px 8px;border-bottom:1px solid #21262d;text-align:right;font-size:0.78rem">$6.80</td><td style="padding:6px 8px;border-bottom:1px solid #21262d;text-align:right;font-size:0.78rem">$136,000</td></tr>
+<tr style="background:#1c2128"><td colspan=3 style="padding:6px 8px;font-weight:600;text-align:right">Total (FOB)</td><td style="padding:6px 8px;text-align:right;font-weight:700;color:#28c840">$346,000</td></tr>
+</table>
+
+<span class="tag">Incoterms</span> FOB Shenzhen · <span class="tag">Payment</span> T/T 30% deposit + 70% BL copy
+<span class="tag">Lead Time</span> 45 days after deposit · <span class="tag">Packing</span> 50pcs/ctn, 500ctns/20GP
+
+<span class="tag" style="background:rgba(255,184,77,0.12);color:#ffb84d">💡 Negotiation Tips</span>
+Client may push $0.3-0.5/pc lower. Walk-away floor: TWS $3.90, Speaker $6.50
+German buyers value CE cert and REACH compliance — offer cert list proactively`
+    },
+    {
+      desc: 'AI generates personalized cold emails in multiple languages',
+      steps: [
+        '📋 Target: TWS Earbuds + California, USA — AudioMax Distribution LLC',
+        '🔍 Research: Founded 2008, premium audio segment specialist...',
+        '✍️ AI generating personalized email (with verified company intel)',
+        '🌐 Translating to English (Spanish version also ready)',
+        '📎 Attaching product catalog and spec sheet links',
+        '✅ 2 emails generated — ready to copy and send'
+      ],
+      result: `<span class="result-title">📧 Email Preview</span>
+
+<span class="tag">To</span> Mike Johnson · Head of Procurement · AudioMax Distribution LLC
+<span class="tag">Subject</span> Quick Question: TWS Earbuds with CE/FCC — Looking for Steady Supplier [USA Import]
+
+---
+
+Dear Mike,
+
+I came across AudioMax's strong presence in the premium audio segment — your recent partnership with JLab Audio caught my attention.
+
+We're ABC Electronics, a Shenzhen-based manufacturer specializing in TWS earbuds and Bluetooth speakers, with annual production capacity of 500,000 units.
+
+Why I'm reaching out: We're currently supplying 3 brands in your region and looking to expand. Your Amazon ratings (4.3★ avg) suggest you're selective about supplier quality — which aligns perfectly with what we do.
+
+What we can offer:
+✅ CE/FCC/RoHS certified (test reports ready)
+✅ 6+ years Amazon seller experience
+✅ 45-day lead time, with 10-day rush option
+✅ Custom logo and packaging at no extra cost
+
+I'd love to share our catalog and a sample unit for your evaluation. Would a quick 15-min call this week work for you?
+
+Best regards,
+Li Wei
+Sales Manager | ABC Electronics Co., Ltd.
+📧 sales@abcelectronics.cn | 📱 +86 138 XXXX XXXX
+🔗 abcelectronics.cn | 📸 @abcelectronics_official
+
+---
+<span style="color:#444;font-size:0.7rem">Spanish version also generated for Latin America outreach</span>`
+    },
+    {
+      desc: 'Full customer lifecycle tracking, overdue alerts, pipeline analytics',
+      steps: [
+        '📊 Loading CRM dashboard...',
+        '🔥 A-level clients: 12 · Pipeline total: $2,840,000',
+        '⚠️  Overdue follow-ups: 7 (need action this week)',
+        '📅 Next 7-day reminders: 9',
+        '📈 New leads this month: 34 · Conversion rate: 18%',
+        '💰 Expected closes this month: $156,000'
+      ],
+      result: `<span class="result-title">📊 CRM Dashboard</span>
+<div class="quick-stats">
+  <div class="stat"><div class="num">89</div><div class="label">Total Clients</div></div>
+  <div class="stat"><div class="num">$2.84M</div><div class="label">Pipeline</div></div>
+  <div class="stat"><div class="num">12</div><div class="label">A-Level</div></div>
+  <div class="stat"><div class="num">$580K</div><div class="label">Closed (MTD)</div></div>
+</div>
+
+<div class="section-label">PIPELINE STAGES</div>
+🦷 Leads       23  ████████████░░░░  $156,000
+🎯 Qualified   18  █████████░░░░░░░░  $680,000
+🤝 Negotiating 11  █████░░░░░░░░░░░  $1,200,000
+📝 Contract     5  ███░░░░░░░░░░░░░  $340,000
+✅ Closed      32  █████████████░░░  $580,000
+
+<div class="section-label">⚠️  OVERDUE (Act This Week)</div>
+🔴 AudioMax LLC — Quote follow-up (3 days overdue) · $210,000
+🔴 SoundWave Electronics — Sample confirmation (5 days overdue) · $136,000
+🔴 Pacific Tech Goods — 3rd shipment dispatch (1 day overdue) · $68,000
+🔴 Nordic Electronics AB — Contract follow-up (2 days overdue) · $95,000
+🔴 Brasil Import Co. — PI confirmation (7 days overdue) · $45,000
+
+<div class="section-label">💡 Action Plan</div>
+Prioritize top 2 A-level clients this week — expected close $346K
+AudioMax already has clear intent, success probability > 60%`
+    },
+    {
+      desc: 'Canton Fair / trade show badge scanning, 72-hour golden follow-up',
+      steps: [
+        '📍 Canton Fair 2026 Spring · Guangzhou · Booth 8A-12',
+        '🏷️  Badges collected over 3 days: <b>238</b>',
+        '⭐  High-quality leads (LeadQuality ≥ 4★): <b>31</b>',
+        '🔴  VIP (5★): <b>9</b> — clear purchase intent on-site',
+        '🧠 AI analysis: 6 Southeast Asia, 3 Middle East, 2 South America',
+        '📧 Auto-creating post-show follow-up sequence (Day1/3/7/14)...',
+        '✅ 72h follow-up sequence launched for all 31 high-quality leads'
+      ],
+      result: `<span class="result-title">🏛️ Canton Fair 2026 Spring — Summary</span>
+<div class="quick-stats">
+  <div class="stat"><div class="num">238</div><div class="label">Badges Collected</div></div>
+  <div class="stat"><div class="num">31</div><div class="label">High-Quality Leads</div></div>
+  <div class="stat"><div class="num">9</div><div class="label">VIP (5★)</div></div>
+  <div class="stat"><div class="num">$4.2M</div><div class="label">Est. Pipeline</div></div>
+</div>
+
+<div class="section-label">⭐ VIP LEADS (5★ = Clear Intent — Priority)</div>
+<span class="tag">⭐⭐⭐⭐⭐ VIP</span> <strong>PT Teknologi Nusantara</strong> — Jakarta, Indonesia
+  💼 Annual revenue $50M, consumer electronics importer
+  📧 procurement@teknusantara.co.id
+  📦 Target: TWS 20K pcs, Bluetooth Speaker 10K pcs
+  💡 Sample confirmed at booth, extremely high intent — contact Day 1
+
+<span class="tag">⭐⭐⭐⭐⭐ VIP</span> <strong>Riyadh Electronics Co.</strong> — Riyadh, Saudi Arabia
+  💼 Top-tier Saudi electronics distributor, annual procurement $8M+
+  📧 bulk@riyadhelec.sa
+  📦 Target: TWS + Bluetooth Speaker, bulk + own brand
+  💡 Own-brand interest confirmed, FOB quote needed
+
+<span class="tag">⭐⭐⭐⭐⭐ VIP</span> <strong>Grupo Importech</strong> — Mexico City, Mexico
+  💼 Top 5 e-commerce platform in Latin America, 40% YoY growth
+  📧 compras@importech.mx
+  📦 Target: TWS 50K pcs, Q4 peak season stock
+  💡 Competitor quotes in hand, price-sensitive — emphasize quality + lead time
+
+<div class="section-label">📧 POST-SHOW 72H SEQUENCE</div>
+✅ Day 1 (sent) — Thank you email + Product catalog PDF → 31 leads
+⬜ Day 3 — Personalized quote + Show-exclusive discount ($0.15/pc)
+⬜ Day 7 — Case study share + Sample shipment notice
+⬜ Day 14 — Limited-time offer countdown (7 days left)
+⬜ Day 30 — Keep in touch + Q4 peak season reminder`
+    }
+  ],
+  zh: [
+    {
+      desc: '输入产品和目标市场，AI自动找到真实采购商',
+      steps: [
+        '🎯 正在智能分析：TWS蓝牙耳机 + 美国市场',
+        '🌐 搜索 LinkedIn 采购商档案...',
+        '✅ 匹配到 38 家潜在客户（年采购量>$100K）',
+        '🔍 验证企业邮箱有效性...',
+        '✅ 有效邮箱 31 家，拦截无效邮箱 7 家',
+        '🏆 筛选高意向客户（近6个月有相关采购记录）',
+        '📊 得出结论：高匹配 12 家，中匹配 15 家'
+      ],
+      result: `<span class="result-title">✅ 客户挖掘结果</span>
+<div class="quick-stats">
+  <div class="stat"><div class="num">38</div><div class="label">潜在客户</div></div>
+  <div class="stat"><div class="num">31</div><div class="label">有效邮箱</div></div>
+  <div class="stat"><div class="num">12</div><div class="label">高匹配</div></div>
+  <div class="stat"><div class="num">5</div><div class="label">VIP(5星)</div></div>
+</div>
+<div class="section-label">TOP 3 高匹配客户</div>
+<span class="tag">⭐⭐⭐⭐⭐ VIP</span> <strong>AudioMax Distribution LLC</strong> — 美国加州，年采购量$2.4M，专注消费电子
+  📧 procurement@audio-max.com · LinkedIn: 15K+ followers · 近期在找TWS供应商
+  💡 采购决策人: Mike Johnson, Head of Procurement
+  🎯 切入建议: 强调FDA/CE认证，有Bose/JBL合作经验
+
+<span class="tag">⭐⭐⭐⭐⭐ VIP</span> <strong>SoundWave Electronics Inc</strong> — 美国德州，年采购量$1.8M，电商渠道为主
+  📧 buyer@soundwave-elec.com · Amazon年销售额$8M+
+  💡 切入建议: 强调快速交期+退换货政策，电商最关心翻货率
+
+<span class="tag">⭐⭐⭐⭐</span> <strong>Pacific Tech Goods</strong> — 美国华盛顿州，年采购量$600K，线下渠道
+  📧 info@pacifictech.com
+  💡 切入建议: 支持定制Logo，适合礼品/企业采购渠道`
+    },
+    {
+      desc: '分析询盘，给出报价单和谈判策略',
+      steps: [
+        '📥 收到询盘：50,000件蓝牙音箱，法兰克福展会现场交换',
+        '🔍 分析客户画像：德国进口商 · 大型贸易公司 · 专业采购商',
+        '✅ 需求真实性：高（有具体数量+交货地+当场名片）',
+        '📊 HS编码：8518.30（耳机/音箱），退税率13%，无出口管制',
+        '💰 计算成本：FOB深圳 $4.20/件 · CIF汉堡 $4.85/件',
+        '📄 生成 Proforma Invoice...'
+      ],
+      result: `<span class="result-title">📄 Proforma Invoice</span>
+<div class="section-label">PI-20260326-001 | 有效期：30天</div>
+
+<span class="tag">卖方</span> ABC Electronics Co., Ltd.
+  深圳宝安区 · Tel: +86-755-XXXXXXX
+
+<span class="tag">买方</span> AudioTech Handels GmbH
+  法兰克福 · VAT: DEXXXXXXXXX
+
+<span class="tag">商品明细</span>
+<table style="width:100%;border-collapse:collapse;margin:8px 0">
+<tr style="background:#1c2128"><th style="padding:6px 8px;text-align:left;font-size:0.72rem">品名</th><th style="padding:6px 8px;text-align:right;font-size:0.72rem">数量</th><th style="padding:6px 8px;text-align:right;font-size:0.72rem">FOB单价</th><th style="padding:6px 8px;text-align:right;font-size:0.72rem">总价</th></tr>
+<tr><td style="padding:6px 8px;border-bottom:1px solid #21262d;font-size:0.78rem">TWS蓝牙耳机 M20（黑白两色）</td><td style="padding:6px 8px;border-bottom:1px solid #21262d;text-align:right;font-size:0.78rem">50,000件</td><td style="padding:6px 8px;border-bottom:1px solid #21262d;text-align:right;font-size:0.78rem">$4.20</td><td style="padding:6px 8px;border-bottom:1px solid #21262d;text-align:right;font-size:0.78rem">$210,000</td></tr>
+<tr><td style="padding:6px 8px;border-bottom:1px solid #21262d;font-size:0.78rem">蓝牙音箱 BS50</td><td style="padding:6px 8px;border-bottom:1px solid #21262d;text-align:right;font-size:0.78rem">20,000件</td><td style="padding:6px 8px;border-bottom:1px solid #21262d;text-align:right;font-size:0.78rem">$6.80</td><td style="padding:6px 8px;border-bottom:1px solid #21262d;text-align:right;font-size:0.78rem">$136,000</td></tr>
+<tr style="background:#1c2128"><td colspan=3 style="padding:6px 8px;font-weight:600;text-align:right">合同总价 (FOB)</td><td style="padding:6px 8px;text-align:right;font-weight:700;color:#28c840">$346,000</td></tr>
+</table>
+
+<span class="tag">贸易术语</span> FOB深圳 · <span class="tag">付款</span> T/T 30%定金 + 70%提单 copy
+<span class="tag">交货期</span> 定金后45天 · <span class="tag">包装</span> 50pcs/ctn, 500ctns/20GP
+
+<span class="tag" style="background:rgba(255,184,77,0.12);color:#ffb84d">💡 谈判建议</span>
+客户可能压价 $0.3-0.5/件，让步底线：TWS $3.90, 音箱 $6.50
+德国客户重视 CE 认证和 REACH 环保标准，建议主动提供证书清单`
+    },
+    {
+      desc: 'AI生成个性化开发信，支持多语言多渠道',
+      steps: [
+        '📋 选定目标：TWS蓝牙耳机 + 美国加州 AudioMax Distribution',
+        '🔍 调研客户背景：公司成立于2008年，专注高端音频...',
+        '✍️ AI生成个性化开发信（已嵌入客户真实信息）',
+        '🌐 翻译为英文版本（同时生成西班牙语版本备用）',
+        '📎 附带产品资料附件链接',
+        '✅ 2封邮件已生成，可直接复制使用'
+      ],
+      result: `<span class="result-title">📧 开发信预览</span>
+
+<span class="tag">收件人</span> Mike Johnson · Head of Procurement · AudioMax Distribution LLC
+<span class="tag">主题</span> Quick Question: TWS Earbuds with CE/FCC — Looking for Steady Supplier [USA Import]
+
+---
+
+Dear Mike,
+
+I came across AudioMax's strong presence in the premium audio segment — your recent partnership with JLab Audio caught my attention.
+
+We're ABC Electronics, a Shenzhen-based manufacturer specializing in TWS earbuds and Bluetooth speakers, with annual production capacity of 500,000 units.
+
+Why I'm reaching out: We're currently supplying 3 brands in your region and looking to expand. Your Amazon ratings (4.3★ avg) suggest you're selective about supplier quality — which aligns perfectly with what we do.
+
+What we can offer:
+✅ CE/FCC/RoHS certified (test reports ready)
+✅ 6+ years Amazon seller experience
+✅ 45-day lead time, with 10-day rush option
+✅ Custom logo and packaging at no extra cost
+
+I'd love to share our catalog and a sample unit for your evaluation. Would a quick 15-min call this week work for you?
+
+Best regards,
+Li Wei
+Sales Manager | ABC Electronics Co., Ltd.
+📧 sales@abcelectronics.cn | 📱 +86 138 XXXX XXXX
+🔗 abcelectronics.cn | 📸 @abcelectronics_official
+
+---
+<span style="color:#444;font-size:0.7rem">西班牙语版本已同步生成，适用于拉丁美洲市场</span>`
+    },
+    {
+      desc: '客户全生命周期追踪，逾期提醒，管道分析',
+      steps: [
+        '📊 加载 CRM 仪表盘...',
+        '🔥 A级客户：12家 | 管道总额：$2,840,000',
+        '⚠️  逾期跟进：7条（本周需处理）',
+        '📅 未来7天到期提醒：9条',
+        '📈 本月新增线索：34家 | 转化率：18%',
+        '💰 预计本月可成交：$156,000'
+      ],
+      result: `<span class="result-title">📊 CRM 仪表盘</span>
+<div class="quick-stats">
+  <div class="stat"><div class="num">89</div><div class="label">客户总数</div></div>
+  <div class="stat"><div class="num">$2.84M</div><div class="label">管道金额</div></div>
+  <div class="stat"><div class="num">12</div><div class="label">A级客户</div></div>
+  <div class="stat"><div class="num">$580K</div><div class="label">已成交(MTD)</div></div>
+</div>
+
+<div class="section-label">客户阶段分布</div>
+🦷 线索      23家  ████████████░░░░  $156,000
+🎯 意向确认  18家  █████████░░░░░░░░  $680,000
+🤝 谈判中    11家  █████░░░░░░░░░░░  $1,200,000
+📝 合同阶段   5家  ███░░░░░░░░░░░░░  $340,000
+✅ 已成交    32家  █████████████░░░  $580,000
+
+<div class="section-label">⚠️  逾期跟进（本周必处理）</div>
+🔴 AudioMax LLC — 跟进报价（逾期 3天）· $210,000
+🔴 SoundWave Electronics — 确认样品（逾期 5天）· $136,000
+🔴 Pacific Tech Goods — 寄送第3批货（逾期 1天）· $68,000
+🔴 Nordic Electronics AB — 跟进合同（逾期 2天）· $95,000
+🔴 Brasil Import Co. — 确认PI（逾期 7天）· $45,000
+
+<div class="section-label">💡 行动建议</div>
+本周优先联系前2个A级客户，预计可转化 $346,000；AudioMax 已有明确意向，成功率>60%`
+    },
+    {
+      desc: '广交会/展会名片智能管理，72小时黄金跟进',
+      steps: [
+        '📍 广交会2026春季 · 广州琶洲 · Booth 8A-12',
+        '🏷️  展会3天共收集名片：238张',
+        '⭐  高质量线索（LeadQuality ≥ 4星）：31家',
+        '🔴  VIP（5星）：9家 — 有明确采购意向',
+        '🧠 AI分析：6家来自东南亚，3家中东，2家南美',
+        '📧 自动创建展后跟进序列（Day1/3/7/14）...',
+        '✅ 展后72小时跟进序列已启动，发送给全部31家高质线索'
+      ],
+      result: `<span class="result-title">🏛️ 广交会2026春季 展会总结</span>
+<div class="quick-stats">
+  <div class="stat"><div class="num">238</div><div class="label">收集名片</div></div>
+  <div class="stat"><div class="num">31</div><div class="label">高质量线索</div></div>
+  <div class="stat"><div class="num">9</div><div class="label">VIP(5星)</div></div>
+  <div class="stat"><div class="num">$4.2M</div><div class="label">预估管道</div></div>
+</div>
+
+<div class="section-label">⭐ VIP 线索（5星 = 明确意向，优先跟进）</div>
+<span class="tag">⭐⭐⭐⭐⭐ VIP</span> <strong>PT Teknologi Nusantara</strong> — 印度尼西亚雅加达
+  💼 年营收$50M，专注消费电子进口
+  📧 procurement@teknusantara.co.id
+  📦 目标产品：TWS耳机 20K件，蓝牙音箱 10K件
+  💡 展会现场已确认样品，意向极强，建议Day1优先联系
+
+<span class="tag">⭐⭐⭐⭐⭐ VIP</span> <strong>Riyadh Electronics Co.</strong> — 沙特利雅得
+  💼 沙特最大电器分销商之一，年采购$8M+
+  📧 bulk@riyadhelec.sa
+  📦 目标产品：TWS+蓝牙音箱，散单+自有品牌
+  💡 已有自有品牌合作意向，需提供FOB报价
+
+<span class="tag">⭐⭐⭐⭐⭐ VIP</span> <strong>Grupo Importech</strong> — 墨西哥城
+  💼 拉丁美洲前五电商平台，年增⻓40%
+  📧 compras@importech.mx
+  📦 目标：TWS 50K件，Q4旺季备货
+  💡 竞品报价已在手，价格敏感，需强调质量+交期
+
+<div class="section-label">📧 展后72h跟进序列</div>
+✅ Day1 (已完成) — 感谢邮件 + 产品手册 PDF 已发送至 31 家
+⬜ Day3 — 个性化报价 + 展会专属优惠（$0.15/件折扣）
+⬜ Day7 — 案例分享 + 样品发货通知
+⬜ Day14 — 展会限时优惠倒计时（7天内有效）
+⬜ Day30 — 保持联系 + Q4旺季备货提醒`
+    }
+  ]
+};
+
+let currentTab = 0;
+let currentLang = 'en';
+let stepIntervals = [];
+let isPlaying = false;
+
+function setLang(lang) {
+  currentLang = lang;
+  document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+  document.getElementById('btn-zh').classList.toggle('active', lang === 'zh');
+  document.body.classList.toggle('zh', lang === 'zh');
+  document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
+  // Reset and replay current tab
+  const btns = document.querySelectorAll('.tab-btn');
+  const activeBtn = [...btns].find(b => b.classList.contains('active') && b.lang === lang);
+  if (activeBtn) {
+    const idx = [...btns].indexOf(activeBtn) % 5;
+    showTab(idx, activeBtn);
+  }
+}
+
+function showTab(idx, btn) {
+  // Only switch visible tab button
+  const langBtns = document.querySelectorAll('.tab-btn');
+  langBtns.forEach(b => b.classList.remove('active'));
+  // Activate both EN and ZH versions
+  langBtns.forEach(b => {
+    const bLang = b.lang || 'en';
+    const bIdx = [...langBtns].indexOf(b) % 5;
+    if (bIdx === idx && bLang === currentLang) b.classList.add('active');
+  });
+
+  currentTab = idx;
+  stepIntervals.forEach(function(id) { if (id) clearInterval(id); });
+  stepIntervals = [];
+
+  const data = T[currentLang][idx];
+  const content = document.getElementById('tab-content');
+  content.innerHTML = '';
+
+  var header = document.createElement('div');
+  header.style.marginBottom = '12px';
+  header.innerHTML = '<div style="color:#667eea;font-weight:700;margin-bottom:4px">' + data.desc + '</div>';
+  content.appendChild(header);
+
+  var stepsEl = document.createElement('div');
+  stepsEl.style.marginBottom = '10px';
+  content.appendChild(stepsEl);
+
+  var resultEl = document.createElement('div');
+  resultEl.style.display = 'none';
+  resultEl.className = 'result-panel';
+  content.appendChild(resultEl);
+
+  var stepIdx = 0;
+
+  function addStep() {
+    if (stepIdx >= data.steps.length) {
+      setTimeout(function() {
+        resultEl.style.display = 'block';
+        resultEl.className = 'result-panel fade-in';
+        resultEl.innerHTML = data.result;
+      }, 400);
+      return;
+    }
+
+    var el = document.createElement('div');
+    el.style.opacity = '0';
+    el.style.transition = 'opacity 0.15s';
+    el.style.marginBottom = '3px';
+    stepsEl.appendChild(el);
+
+    var text = data.steps[stepIdx];
+    var charIdx = 0;
+    el.style.opacity = '1';
+
+    var typeInterval = setInterval(function() {
+      if (charIdx < text.length) {
+        el.textContent += text[charIdx++];
+      } else {
+        clearInterval(typeInterval);
+        stepIdx++;
+        setTimeout(addStep, stepIdx >= data.steps.length ? 300 : 350);
+      }
+    }, 18 + Math.random() * 22);
+
+    stepIntervals.push(typeInterval);
+  }
+
+  setTimeout(addStep, 300);
+}
+
+// Auto-play first tab on load
+window.addEventListener('load', function() {
+  var lang = navigator.language.startsWith('zh') ? 'zh' : 'en';
+  setLang(lang);
+  setTimeout(function() {
+    var btns = document.querySelectorAll('.tab-btn');
+    var firstActive = [...btns].find(function(b) { return b.classList.contains('active'); });
+    if (firstActive) {
+      var idx = [...btns].indexOf(firstActive) % 5;
+      showTab(idx, firstActive);
+    }
+  }, 400);
+});
+</script>
+</body>
+</html>
