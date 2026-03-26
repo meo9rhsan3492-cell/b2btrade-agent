@@ -1,396 +1,214 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>B2Btrade Agent - 外贸AI助手在线演示</title>
-<style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0a0a0f; color: #e0e0e0; min-height: 100vh; }
-  .container { max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem; }
-
-  .header { text-align: center; margin-bottom: 2.5rem; }
-  .header h1 { font-size: 2rem; font-weight: 700; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-  .header p { color: #888; margin-top: 0.5rem; }
-  .badge { display: inline-block; background: rgba(102,126,234,0.15); border: 1px solid rgba(102,126,234,0.3); color: #667eea; padding: 4px 14px; border-radius: 20px; font-size: 0.75rem; margin-top: 0.75rem; }
-
-  .terminal-wrap { background: #0d1117; border-radius: 12px; border: 1px solid #21262d; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.6); }
-  .term-bar { background: #161b22; padding: 10px 16px; display: flex; align-items: center; gap: 6px; border-bottom: 1px solid #21262d; }
-  .term-dot { width: 12px; height: 12px; border-radius: 50%; }
-  .dot-red { background: #ff5f57; }
-  .dot-yellow { background: #febc2e; }
-  .dot-green { background: #28c840; }
-  .term-title { color: #666; font-size: 0.8rem; margin-left: 8px; }
-
-  /* Tab buttons */
-  .tabs { display: flex; gap: 2px; padding: 12px 16px 0; background: #0d1117; border-bottom: 1px solid #21262d; flex-wrap: wrap; }
-  .tab-btn { background: transparent; border: 1px solid transparent; color: #666; padding: 8px 14px; border-radius: 6px 6px 0 0; cursor: pointer; font-size: 0.8rem; transition: all 0.2s; border-bottom: 2px solid transparent; }
-  .tab-btn:hover { color: #e0e0e0; background: #161b22; }
-  .tab-btn.active { color: #667eea; background: #0d1117; border-color: #21262d; border-bottom-color: #667eea; }
-
-  .term-body { padding: 1.5rem; min-height: 340px; font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace; font-size: 0.82rem; line-height: 1.65; white-space: pre-wrap; }
-
-  /* Product pills */
-  .product-pills { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
-  .pill { background: #1c2128; border: 1px solid #30363d; color: #8b949e; padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; cursor: pointer; transition: all 0.2s; }
-  .pill:hover { border-color: #667eea; color: #667eea; }
-  .pill.active { background: rgba(102,126,234,0.15); border-color: #667eea; color: #667eea; }
-
-  /* Result panel */
-  .result-panel { background: #010409; border: 1px solid #21262d; border-radius: 8px; padding: 14px; margin-top: 12px; white-space: pre-wrap; font-size: 0.78rem; line-height: 1.6; }
-
-  /* CTA */
-  .cta { text-align: center; margin: 2.5rem 0; }
-  .cta-btn { display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 13px 30px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.95rem; transition: transform 0.2s, box-shadow 0.2s; }
-  .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(102,126,234,0.4); }
-  .cta .sub { color: #555; font-size: 0.78rem; margin-top: 8px; }
-
-  .footer { text-align: center; color: #444; font-size: 0.75rem; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #1a1a1a; }
-  .footer a { color: #667eea; text-decoration: none; }
-
-  .section-label { color: #667eea; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
-  .result-title { color: #28c840; font-weight: 600; margin-bottom: 10px; }
-  .tag { display: inline-block; background: rgba(88,166,255,0.12); color: #58a6ff; padding: 2px 8px; border-radius: 4px; font-size: 0.68rem; margin-right: 4px; }
-
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-  .fade-in { animation: fadeIn 0.4s ease-out; }
-
-  /* Quick stats */
-  .quick-stats { display: flex; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; }
-  .stat { background: #1c2128; border: 1px solid #30363d; border-radius: 8px; padding: 10px 16px; flex: 1; min-width: 100px; }
-  .stat .num { font-size: 1.3rem; font-weight: 700; color: #667eea; }
-  .stat .label { font-size: 0.7rem; color: #666; margin-top: 2px; }
-</style>
-</head>
-<body>
-<div class="container">
-
-  <div class="header fade-in">
-    <h1>B2Btrade Agent</h1>
-    <p>外贸B2B智能助手 · AI驱动客户挖掘 · 跟进 · 报价全流程</p>
-    <span class="badge">🖥️ 在线演示 · 无需安装</span>
-  </div>
-
-  <div class="terminal-wrap fade-in">
-    <div class="term-bar">
-      <div class="term-dot dot-red"></div>
-      <div class="term-dot dot-yellow"></div>
-      <div class="term-dot dot-green"></div>
-      <span class="term-title">b2btrade-agent — interactive demo</span>
-    </div>
-
-    <!-- Tab buttons -->
-    <div class="tabs">
-      <button class="tab-btn active" onclick="showTab(0, this)">🔍 客户挖掘</button>
-      <button class="tab-btn" onclick="showTab(1, this)">📋 询盘报价</button>
-      <button class="tab-btn" onclick="showTab(2, this)">📧 开发信</button>
-      <button class="tab-btn" onclick="showTab(3, this)">👥 CRM管理</button>
-      <button class="tab-btn" onclick="showTab(4, this)">🏛️ 展会获客</button>
-    </div>
-
-    <!-- Tab content -->
-    <div class="term-body" id="tab-content"></div>
-  </div>
-
-  <div class="cta">
-    <a href="https://github.com/meo9rhsan3492-cell/b2btrade-agent" class="cta-btn" target="_blank">🚀 立即安装使用</a>
-    <div class="sub">npm install b2btrade-agent · 支持 Claude/GPT/Gemini/MiniMax</div>
-  </div>
-
-  <div class="footer">
-    <a href="https://github.com/meo9rhsan3492-cell/b2btrade-agent">GitHub</a> ·
-    <a href="https://github.com/meo9rhsan3492-cell/b2btrade-agent/blob/main/CHANGELOG.md">更新日志</a> ·
-    v1.1.0 · MIT License
-  </div>
-</div>
-
-<script>
-const TAB_DATA = [
-  {
-    label: '🔍 客户挖掘',
-    icon: '🔍',
-    desc: '输入产品和目标市场，AI自动找到真实采购商',
-    steps: [
-      '🎯 正在智能分析：TWS蓝牙耳机 + 美国市场',
-      '🌐 搜索 LinkedIn 采购商档案...',
-      '✅ 匹配到 38 家潜在客户（年采购量>$100K）',
-      '🔍 验证企业邮箱有效性...',
-      '✅ 有效邮箱 31 家，拦截无效邮箱 7 家',
-      '🏆 筛选高意向客户（近6个月有相关采购记录）',
-      '📊 得出结论：高匹配 12 家，中匹配 15 家'
-    ],
-    result: `<span class="result-title">✅ 客户挖掘结果</span>
-<div class="quick-stats">
-  <div class="stat"><div class="num">38</div><div class="label">潜在客户</div></div>
-  <div class="stat"><div class="num">31</div><div class="label">有效邮箱</div></div>
-  <div class="stat"><div class="num">12</div><div class="label">高匹配</div></div>
-  <div class="stat"><div class="num">5</div><div class="label">VIP(5星)</div></div>
-</div>
-<div class="section-label">TOP 3 高匹配客户</div>
-<span class="tag">⭐⭐⭐⭐⭐ VIP</span> <strong>AudioMax Distribution LLC</strong> — 美国加州，年采购量$2.4M，专注消费电子
-  📧 procurement@audio-max.com · LinkedIn: 15K+ followers · 近期在找TWS供应商
-  💡 采购决策人: Mike Johnson, Head of Procurement
-  🎯 切入建议: 强调FDA/CE认证，有Bose/JBL合作经验
-
-<span class="tag">⭐⭐⭐⭐⭐ VIP</span> <strong>SoundWave Electronics Inc</strong> — 美国德州，年采购量$1.8M，电商渠道为主
-  📧 buyer@soundwave-elec.com · Amazon年销售额$8M+
-  💡 切入建议: 强调快速交期+退换货政策，电商最关心翻货率
-
-<span class="tag">⭐⭐⭐⭐</span> <strong>Pacific Tech Goods</strong> — 美国华盛顿州，年采购量$600K，线下渠道
-  📧 info@pacifictech.com
-  💡 切入建议: 支持定制Logo，适合礼品/企业采购渠道`
-  },
-  {
-    label: '📋 询盘报价',
-    icon: '📋',
-    desc: '分析询盘，给出报价单和谈判策略',
-    steps: [
-      '📥 收到询盘：50,000件蓝牙音箱，法兰克福展会现场交换',
-      '🔍 分析客户画像：德国进口商 · 大型贸易公司 · 专业采购商',
-      '✅ 需求真实性：高（有具体数量+交货地+当场名片）',
-      '📊 HS编码识别：8518.30（耳机/音箱），退税率13%，无出口管制',
-      '💰 计算成本：FOB深圳 $4.20/件 · CIF汉堡 $4.85/件',
-      '📄 生成 Proforma Invoice...'
-    ],
-    result: `<span class="result-title">📄 Proforma Invoice</span>
-<div class="section-label">PI-20260326-001 | 有效期：30天</div>
-
-<span class="tag">卖方</span> ABC Electronics Co., Ltd.
-  深圳宝安区西乡街道XXX号 · Tel: +86-755-XXXXXXX
-
-<span class="tag">买方</span> AudioTech Handels GmbH
- 法兰克福工业路XXX号 · VAT: DEXXXXXXXXX
-
-<span class="tag">商品明细</span>
-<table style="width:100%;border-collapse:collapse;margin:8px 0">
-<tr style="background:#1c2128"><th style="padding:6px 8px;text-align:left;font-size:0.72rem">品名</th><th style="padding:6px 8px;text-align:right;font-size:0.72rem">数量</th><th style="padding:6px 8px;text-align:right;font-size:0.72rem">FOB单价</th><th style="padding:6px 8px;text-align:right;font-size:0.72rem">总价</th></tr>
-<tr><td style="padding:6px 8px;border-bottom:1px solid #21262d;font-size:0.78rem">TWS蓝牙耳机 M20（黑白两色）</td><td style="padding:6px 8px;border-bottom:1px solid #21262d;text-align:right;font-size:0.78rem">50,000件</td><td style="padding:6px 8px;border-bottom:1px solid #21262d;text-align:right;font-size:0.78rem">$4.20</td><td style="padding:6px 8px;border-bottom:1px solid #21262d;text-align:right;font-size:0.78rem">$210,000</td></tr>
-<tr><td style="padding:6px 8px;border-bottom:1px solid #21262d;font-size:0.78rem">蓝牙音箱 BS50</td><td style="padding:6px 8px;border-bottom:1px solid #21262d;text-align:right;font-size:0.78rem">20,000件</td><td style="padding:6px 8px;border-bottom:1px solid #21262d;text-align:right;font-size:0.78rem">$6.80</td><td style="padding:6px 8px;border-bottom:1px solid #21262d;text-align:right;font-size:0.78rem">$136,000</td></tr>
-<tr style="background:#1c2128"><td colspan=3 style="padding:6px 8px;font-weight:600;text-align:right">合同总价 (FOB)</td><td style="padding:6px 8px;text-align:right;font-weight:700;color:#28c840">$346,000</td></tr>
-</table>
-
-<span class="tag">贸易术语</span> FOB Shenzhen · <span class="tag">付款</span> T/T 30% deposit + 70% BL copy
-<span class="tag">交货期</span> 45 days after deposit · <span class="tag">包装</span> 50pcs/ctn, 500ctns/20GP
-
-<span class="tag" style="background:rgba(255,184,77,0.12);color:#ffb84d">💡 谈判建议</span>
-客户可能压价 $0.3-0.5/件，让步底线：TWS $3.90, 音箱 $6.50
-德国客户重视 CE 认证和 REACH 环保标准，建议主动提供证书清单`
-  },
-  {
-    label: '📧 开发信',
-    icon: '📧',
-    desc: 'AI生成个性化开发信，支持多语言多渠道',
-    steps: [
-      '📋 选定目标：TWS蓝牙耳机 + 美国加州 AudioMax Distribution',
-      '🔍 调研客户背景：公司成立于2008年，专注高端音频...',
-      '✍️ AI生成个性化开发信（已嵌入客户真实信息）',
-      '🌐 翻译为英文版本（同时生成西班牙语版本备用）',
-      '📎 附带产品资料附件链接',
-      '✅ 2封邮件已生成，可直接复制使用'
-    ],
-    result: `<span class="result-title">📧 开发信预览</span>
-
-<span class="tag">收件人</span> Mike Johnson · Head of Procurement · AudioMax Distribution LLC
-<span class="tag">主题</span> Quick Question: TWS Earbuds with CE/FCC — Looking for Steady Supplier [USA Import]
-
----
-
-Dear Mike,
-
-I came across AudioMax's strong presence in the premium audio segment — your recent partnership with JLab Audio caught my attention.
-
-We're ABC Electronics, a Shenzhen-based manufacturer specializing in TWS earbuds and Bluetooth speakers, with annual production capacity of 500,000 units.
-
-Why I'm reaching out: We're currently supplying 3 brands in your region and looking to expand. Your Amazon ratings (4.3★ avg) suggest you're selective about supplier quality — which aligns perfectly with what we do.
-
-What we can offer:
-✅ CE/FCC/RoHS certified (test reports ready)
-✅ 6+ years Amazon seller experience
-✅ 45-day lead time, with 10-day rush option
-✅ Custom logo and packaging at no extra cost
-
-I'd love to share our catalog and a sample unit for your evaluation. Would a quick 15-min call this week work for you?
-
-Best regards,
-Li Wei
-Sales Manager | ABC Electronics Co., Ltd.
-📧 sales@abcelectronics.cn | 📱 +86 138 XXXX XXXX
-🔗 abcelectronics.cn | 📸 @abcelectronics_official
-
----
-<span style="color:#444;font-size:0.7rem">Spanish version (for Latin America outreach) also generated</span>`
-  },
-  {
-    label: '👥 CRM管理',
-    icon: '👥',
-    desc: '客户全生命周期追踪，逾期提醒，管道分析',
-    steps: [
-      '📊 加载 CRM 仪表盘...',
-      '🔥 A级客户：12家 | 管道总额：$2,840,000',
-      '⚠️  逾期跟进：7条（本周需处理）',
-      '📅 未来7天到期提醒：9条',
-      '📈 本月新增线索：34家 | 转化率：18%',
-      '💰 预计本月可成交：$156,000'
-    ],
-    result: `<span class="result-title">📊 CRM 仪表盘</span>
-<div class="quick-stats">
-  <div class="stat"><div class="num">89</div><div class="label">客户总数</div></div>
-  <div class="stat"><div class="num">$2.84M</div><div class="label">管道金额</div></div>
-  <div class="stat"><div class="num">12</div><div class="label">A级客户</div></div>
-  <div class="stat"><div class="num">$580K</div><div class="label">已成交</div></div>
-</div>
-
-<div class="section-label">客户阶段分布</div>
-🦷 线索      23家  ████████████░░░░  $156,000
-🎯 意向确认  18家  █████████░░░░░░░░  $680,000
-🤝 谈判中    11家  █████░░░░░░░░░░░  $1,200,000
-📝 合同阶段   5家  ███░░░░░░░░░░░░░  $340,000
-✅ 已成交    32家  █████████████░░░  $580,000 (MTD)
-
-<div class="section-label">⚠️  逾期跟进（本周必处理）</div>
-🔴 AudioMax LLC — 跟进报价（逾期 <b>3天</b>）· 管道金额 $210,000
-🔴 SoundWave Electronics — 确认样品（逾期 <b>5天</b>）· $136,000
-🔴 Pacific Tech Goods — 寄送第3批货（逾期 <b>1天</b>）· $68,000
-🔴 Nordic Electronics AB — 跟进合同（逾期 <b>2天</b>）· $95,000
-🔴 Brasil Import Co. — 确认PI（逾期 <b>7天</b>）· $45,000
-
-<div class="section-label">💡 行动建议</div>
-本周优先联系前2个A级客户，预计可转化 $346,000；AudioMax 已有明确意向，成功率>60%`
-  },
-  {
-    label: '🏛️ 展会获客',
-    icon: '🏛️',
-    desc: '广交会/展会名片智能管理，72小时黄金跟进',
-    steps: [
-      '📍 广交会2026春季 · 广州琶洲 · Booth 8A-12',
-      '🏷️  展会3天共收集名片：<b>238张</b>',
-      '⭐  高质量线索（LeadQuality ≥ 4星）：<b>31家</b>',
-      '🔴  VIP（5星）：<b>9家</b> — 有明确采购意向',
-      '🧠 AI分析：6家来自东南亚，3家中东，2家南美',
-      '📧 自动创建展后跟进序列（Day1/3/7/14）...',
-      '✅ 展后72小时跟进序列已启动，发送给全部31家高质线索'
-    ],
-    result: `<span class="result-title">🏛️ 广交会2026春季 展会总结</span>
-<div class="quick-stats">
-  <div class="stat"><div class="num">238</div><div class="label">收集名片</div></div>
-  <div class="stat"><div class="num">31</div><div class="label">高质量线索</div></div>
-  <div class="stat"><div class="num">9</div><div class="label">VIP(5星)</div></div>
-  <div class="stat"><div class="num">$4.2M</div><div class="label">预估管道</div></div>
-</div>
-
-<div class="section-label">⭐ VIP 线索（5星 = 明确意向，优先跟进）</div>
-<span class="tag">⭐⭐⭐⭐⭐ VIP</span> <strong>PT Teknologi Nusantara</strong> — 印度尼西亚雅加达
-  💼 年营收$50M，专注消费电子进口
-  📧 procurement@teknusantara.co.id
-  📦 目标产品：TWS耳机 20K件，蓝牙音箱 10K件
-  💡 展会现场已确认样品，意向极强，建议Day1优先联系
-
-<span class="tag">⭐⭐⭐⭐⭐ VIP</span> <strong>Riyadh Electronics Co.</strong> — 沙特利雅得
-  💼 沙特最大电器分销商之一，年采购$8M+
-  📧 bulk@riyadhelec.sa
-  📦 目标产品：TWS+蓝牙音箱，散单+自有品牌
-  💡 已有自有品牌合作意向，需提供FOB报价
-
-<span class="tag">⭐⭐⭐⭐⭐ VIP</span> <strong>Grupo Importech</strong> — 墨西哥城
-  💼 拉丁美洲前五电商平台，年增⻓40%
-  📧 compras@importech.mx
-  📦 目标：TWS 50K件，Q4旺季备货
-  💡 竞品报价已在手，价格敏感，需强调质量+交期
-
-<div class="section-label">📧 展后72h跟进序列</div>
-✅ Day1 (已完成) — 感谢邮件 + 产品手册 PDF 已发送至 31 家
-⬜ Day3 — 个性化报价 + 展会专属优惠（$0.15/件折扣）
-⬜ Day7 — 案例分享 + 样品发货通知
-⬜ Day14 — 展会限时优惠倒计时（7天内有效）
-⬜ Day30 — 保持联系 + Q4旺季备货提醒`
-  }
-];
-
-let currentTab = 0;
-let stepIntervals = [];
-
-function showTab(idx, btn) {
-  currentTab = idx;
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-
-  // Clear all intervals
-  stepIntervals.forEach(clearInterval);
-  stepIntervals = [];
-
-  const data = TAB_DATA[idx];
-  const content = document.getElementById('tab-content');
-  content.innerHTML = '';
-
-  // Header
-  const header = document.createElement('div');
-  header.style.marginBottom = '12px';
-  header.innerHTML = `<div style="color:#667eea;font-weight:700;margin-bottom:4px">${data.label}</div><div style="color:#555;font-size:0.78rem">${data.desc}</div>`;
-  content.appendChild(header);
-
-  // Steps container
-  const stepsEl = document.createElement('div');
-  stepsEl.style.marginBottom = '10px';
-  content.appendChild(stepsEl);
-
-  // Result container
-  const resultEl = document.createElement('div');
-  resultEl.style.display = 'none';
-  resultEl.className = 'result-panel';
-  content.appendChild(resultEl);
-
-  // Animate steps
-  let stepIdx = 0;
-  let stepTimeout = null;
-
-  function addStep() {
-    if (stepIdx >= data.steps.length) {
-      // Show result
-      stepTimeout = setTimeout(() => {
-        resultEl.style.display = 'block';
-        resultEl.className = 'result-panel fade-in';
-        resultEl.innerHTML = data.result;
-      }, 400);
-      return;
-    }
-
-    const el = document.createElement('div');
-    el.style.color = '#28c840';
-    el.style.opacity = '0';
-    el.style.transition = 'opacity 0.15s';
-    el.style.marginBottom = '3px';
-    stepsEl.appendChild(el);
-
-    // Typing effect
-    const text = data.steps[stepIdx];
-    let charIdx = 0;
-    el.style.opacity = '1';
-
-    const typeInterval = setInterval(() => {
-      if (charIdx < text.length) {
-        el.textContent += text[charIdx++];
-      } else {
-        clearInterval(typeInterval);
-        stepIdx++;
-        const delay = stepIdx >= data.steps.length ? 300 : 350;
-        stepTimeout = setTimeout(addStep, delay);
-      }
-    }, 18 + Math.random() * 22);
-
-    stepIntervals.push(typeInterval);
-  }
-
-  stepTimeout = setTimeout(addStep, 300);
-  stepIntervals.push(null); // marker
-}
-
-// Auto-play first tab
-window.addEventListener('load', () => {
-  setTimeout(() => {
-    const firstBtn = document.querySelector('.tab-btn');
-    if (firstBtn) showTab(0, firstBtn);
-  }, 600);
-});
-</script>
-</body>
-</html>
+﻿﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>B2Btrade Agent - AI Foreign Trade CLI</title><meta name="description" content="AI-powered B2B foreign trade automation. 42 buyers in 30s. 21 expert agents. Claude/GPT/MiniMax."><link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><style>*{box-sizing:border-box;margin:0;padding:0}:root{--bg:#0a0e17;--bg2:#111827;--bg3:#1a2235;--accent:#00d4ff;--accent2:#7c3aed;--text:#e2e8f0;--text-dim:#64748b;--border:#1e293b;--success:#10b981}body{font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;cursor:none}#cursor{position:fixed;width:28px;height:28px;border-radius:50%;background:radial-gradient(circle,rgba(0,212,255,1) 0%,rgba(0,212,255,0)70%);pointer-events:none;z-index:9999;transform:translate(-50%,-50%);mix-blend-mode:screen;box-shadow:0 0 20px rgba(0,212,255,0.6),0 0 40px rgba(0,212,255,0.3)}nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0.9rem 2rem;display:flex;justify-content:space-between;align-items:center;background:rgba(10,14,23,0.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}.nav-logo{font-family:JetBrains Mono,monospace;font-weight:700;font-size:1.1rem;color:var(--accent);text-decoration:none}.nav-logo span{color:var(--text)}.nav-links{display:flex;gap:1.8rem;list-style:none}.nav-links a{color:var(--text-dim);text-decoration:none;font-size:0.85rem;font-weight:500;transition:color 0.2s}.nav-links a:hover{color:var(--accent)}.nav-cta{background:var(--accent);color:var(--bg);padding:0.4rem 1.2rem;border-radius:6px;font-size:0.85rem;font-weight:600;text-decoration:none;cursor:none;transition:all 0.2s}.nav-cta:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(0,212,255,0.4)}.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:7rem 2rem 4rem;position:relative;overflow:hidden}.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(0,212,255,0.1) 0%,transparent 60%),radial-gradient(ellipse 60% 40% at 80% 80%,rgba(124,58,237,0.08) 0%,transparent 50%);pointer-events:none}.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,212,255,0.035) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.035) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse 70% 70% at 50% 50%,black 20%,transparent 80%);pointer-events:none}.hero-badge{display:inline-flex;align-items:center;gap:0.5rem;background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.25);border-radius:100px;padding:0.3rem 1rem;font-size:0.75rem;font-family:JetBrains Mono,monospace;color:var(--accent);margin-bottom:1.5rem}.hero-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--success);animation:pulse-dot 2s infinite}@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(1.4)}}.hero-badge .tag{background:rgba(124,58,237,0.3);border-radius:4px;padding:0.1rem 0.4rem;font-size:0.7rem;color:#a78bfa;margin-left:0.3rem}.hero h1{font-size:clamp(2.4rem,6vw,4.2rem);font-weight:700;line-height:1.1;margin-bottom:1.2rem;letter-spacing:-1px;max-width:820px}.hero h1 .gradient-text{background:linear-gradient(135deg,var(--accent) 0%,#a78bfa 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}.hero-sub{font-size:1.1rem;color:var(--text-dim);max-width:540px;margin-bottom:2.5rem;line-height:1.75}.hero-actions{display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;margin-bottom:2rem}.btn-primary{display:inline-flex;align-items:center;gap:0.5rem;background:var(--accent);color:var(--bg);padding:0.8rem 2rem;border-radius:8px;font-weight:600;font-size:0.95rem;text-decoration:none;transition:all 0.2s;border:none;cursor:none}.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,212,255,0.5)}.btn-secondary{display:inline-flex;align-items:center;gap:0.5rem;background:transparent;color:var(--text);padding:0.8rem 2rem;border-radius:8px;font-weight:600;font-size:0.95rem;text-decoration:none;border:1px solid var(--border);transition:all 0.2s;cursor:none}.btn-secondary:hover{border-color:var(--accent);color:var(--accent)}.badges{display:flex;gap:0.8rem;flex-wrap:wrap;justify-content:center;margin-bottom:2rem;align-items:center}.badge-item{display:inline-flex;align-items:center;gap:0.4rem;background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:0.3rem 0.8rem;font-size:0.75rem;color:var(--text-dim);text-decoration:none;transition:border-color 0.2s}.badge-item:hover{border-color:rgba(0,212,255,0.3)}.terminal{background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;width:100%;max-width:700px;box-shadow:0 20px 60px rgba(0,0,0,0.5)}.terminal-bar{background:var(--bg3);padding:0.6rem 1rem;display:flex;align-items:center;gap:0.5rem}.term-dot{width:12px;height:12px;border-radius:50%}.term-dot.red{background:#ff5f57}.term-dot.yellow{background:#febc2e}.term-dot.green{background:#28c840}.term-title{margin-left:0.5rem;font-family:JetBrains Mono,monospace;font-size:0.73rem;color:var(--text-dim)}.terminal-body{padding:1.2rem 1.5rem;font-family:JetBrains Mono,monospace;font-size:0.82rem;line-height:1.8;min-height:190px}.term-line{display:flex;gap:0.5rem;margin-bottom:0.25rem}.term-prompt{color:var(--accent)}.term-cmd{color:var(--text)}.term-output{padding-left:1rem;color:var(--text-dim)}.term-success{color:var(--success)}.term-cursor{display:inline-block;width:8px;height:14px;background:var(--accent);animation:blink 1s step-end infinite;vertical-align:middle}@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}.hero-stats{display:flex;gap:3rem;margin-top:3rem;justify-content:center;flex-wrap:wrap}.hero-stat{text-align:center}.hero-stat-num{font-family:JetBrains Mono,monospace;font-size:1.8rem;font-weight:700;color:var(--accent)}.hero-stat-label{font-size:0.78rem;color:var(--text-dim);margin-top:0.2rem}section{padding:5rem 2rem;max-width:1100px;margin:0 auto}.section-label{font-family:JetBrains Mono,monospace;font-size:0.72rem;color:var(--accent);text-transform:uppercase;letter-spacing:2.5px;margin-bottom:0.75rem}.section-title{font-size:clamp(1.7rem,4vw,2.4rem);font-weight:700;margin-bottom:1rem;letter-spacing:-0.5px}.section-desc{color:var(--text-dim);font-size:1rem;max-width:520px;line-height:1.7;margin-bottom:3rem}.pain-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1.2rem}.pain-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:1.5rem;transition:all 0.3s;cursor:none}.pain-card:hover{border-color:rgba(0,212,255,0.3);transform:translateY(-3px)}.pain-icon{font-size:1.8rem;margin-bottom:0.8rem;display:block}.pain-title{font-weight:600;margin-bottom:0.5rem;font-size:0.95rem}.pain-desc{font-size:0.85rem;color:var(--text-dim);line-height:1.65}.compare-wrap{overflow-x:auto}.compare-table{width:100%;border-collapse:collapse;font-size:0.88rem}.compare-table th{text-align:left;padding:0.8rem 1rem;background:var(--bg2);border-bottom:1px solid var(--border);font-weight:600;color:var(--text-dim);font-size:0.78rem;text-transform:uppercase;letter-spacing:1px}.compare-table td{padding:0.85rem 1rem;border-bottom:1px solid var(--border);vertical-align:top}.new-way{color:var(--success);font-weight:500}.features-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin:3rem 0}.feature-item{background:var(--bg2);padding:1.5rem;text-align:center;transition:background 0.2s}.feature-item:hover{background:var(--bg3)}.feature-icon{font-size:1.6rem;margin-bottom:0.5rem}.feature-name{font-weight:600;font-size:0.88rem;margin-bottom:0.3rem}.feature-desc{font-size:0.76rem;color:var(--text-dim)}.agents-filter{display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:2rem}.filter-btn{padding:0.3rem 0.9rem;border-radius:100px;border:1px solid var(--border);background:transparent;color:var(--text-dim);font-size:0.78rem;cursor:none;transition:all 0.2s;font-family:Inter,sans-serif}.filter-btn.active,.filter-btn:hover{border-color:var(--accent);color:var(--accent);background:rgba(0,212,255,0.08)}.agents-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem}.agent-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:1.2rem;transition:all 0.3s;cursor:none}.agent-card:hover{border-color:rgba(0,212,255,0.35);transform:translateY(-4px);box-shadow:0 8px 24px rgba(0,0,0,0.3)}.agent-card-icon{font-size:1.5rem;margin-bottom:0.5rem}.agent-card-name{font-weight:600;font-size:0.88rem;margin-bottom:0.3rem}.agent-card-desc{font-size:0.76rem;color:var(--text-dim);line-height:1.5}.agent-card-tag{display:inline-block;margin-top:0.5rem;font-size:0.66rem;padding:0.12rem 0.45rem;border-radius:4px;background:rgba(0,212,255,0.08);color:var(--accent);font-family:JetBrains Mono,monospace}.agent-card.hidden{display:none}.testimonials{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.2rem}.testimonial{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:1.5rem}.testimonial-text{font-size:0.9rem;color:var(--text);line-height:1.65;margin-bottom:1rem;font-style:italic}.testimonial-author{display:flex;align-items:center;gap:0.6rem}.testimonial-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;color:var(--bg);flex-shrink:0}.testimonial-name{font-weight:600;font-size:0.85rem}.testimonial-role{font-size:0.75rem;color:var(--text-dim)}.steps{display:flex;gap:2rem;flex-wrap:wrap}.step{flex:1;min-width:220px}.step-num{font-family:JetBrains Mono,monospace;font-size:3.5rem;font-weight:700;color:rgba(0,212,255,0.1);line-height:1;margin-bottom:0.3rem}.step h3{font-size:1.05rem;margin-bottom:0.4rem}.step p{font-size:0.85rem;color:var(--text-dim);line-height:1.6}.step code{display:inline-block;background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:0.08rem 0.4rem;font-family:JetBrains Mono,monospace;font-size:0.78rem;color:var(--accent);margin-top:0.5rem}.cta-section{background:linear-gradient(135deg,rgba(0,212,255,0.08) 0%,rgba(124,58,237,0.08) 100%);border:1px solid rgba(0,212,255,0.15);border-radius:16px;padding:4rem;text-align:center;margin:5rem auto;max-width:1100px}.cta-section h2{font-size:2rem;font-weight:700;margin-bottom:1rem}.cta-section p{color:var(--text-dim);margin-bottom:2rem;font-size:1rem}footer{border-top:1px solid var(--border);padding:2.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;max-width:1100px;margin:0 auto}.footer-brand{font-family:JetBrains Mono,monospace;font-weight:700;color:var(--accent);font-size:0.95rem}.footer-links{display:flex;gap:1.5rem}.footer-links a{color:var(--text-dim);text-decoration:none;font-size:0.85rem;transition:color 0.2s}.footer-links a:hover{color:var(--accent)}.footer-copy{font-size:0.78rem;color:var(--text-dim)}.orb{position:fixed;border-radius:50%;filter:blur(80px);pointer-events:none;z-index:0;opacity:0.2}.orb-1{width:400px;height:400px;background:radial-gradient(circle,rgba(0,212,255,0.5) 0%,transparent 70%);top:10%;left:-100px;animation:float1 8s ease-in-out infinite}.orb-2{width:300px;height:300px;background:radial-gradient(circle,rgba(124,58,237,0.5) 0%,transparent 70%);bottom:20%;right:-80px;animation:float2 10s ease-in-out infinite}@keyframes float1{0%,100%{transform:translate(0,0)}50%{transform:translate(40px,30px)}}@keyframes float2{0%,100%{transform:translate(0,0)}50%{transform:translate(-30px,-40px)}}.reveal{opacity:0;transform:translateY(28px);transition:opacity 0.7s ease,transform 0.7s ease}.reveal.visible{opacity:1;transform:none}.divider{border:none;border-top:1px solid var(--border);max-width:1100px;margin:0 auto}@media(max-width:768px){body{cursor:auto}#cursor{display:none}.nav-links{display:none}.hero h1{font-size:2.2rem}.hero-stats{gap:1.5rem}.steps{flex-direction:column}footer{flex-direction:column;text-align:center}}</style></head><body>
+<div class="orb orb-1"></div><div class="orb orb-2"></div><div id="cursor"></div>
+<nav>
+  <a href="https://github.com/meo9rhsan3492-cell/b2btrade-agent" class="nav-logo" target="_blank">B2B<span>trade</span>_agent</a>
+  <ul class="nav-links">
+    <li><a href="#features">Features</a></li>
+    <li><a href="#agents">Agents</a></li>
+    <li><a href="#testimonials">Testimonials</a></li>
+    <li><a href="#how">Quick Start</a></li>
+    <li><a href="https://github.com/meo9rhsan3492-cell/b2btrade-agent" target="_blank">GitHub</a></li>
+  </ul>
+  <a href="docs/demo_new.html" class="nav-cta" target="_blank" style="background:linear-gradient(135deg,#7c3aed,#00d4ff);margin-right:0.8rem">Try Demo</a>
+  <a href="https://www.npmjs.com/package/b2btrade-agent" target="_blank" class="nav-cta">npm install</a>
+</nav>
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-badge"><span class="dot"></span> AI x Foreign Trade Automation <span class="tag">v1.0</span></div>
+  <h1>The AI Execution Engine<br>for <span class="gradient-text">B2B Foreign Trade</span></h1>
+  <p class="hero-sub">Find 42 potential buyers in 30 seconds<br>AI-personalized cold emails, 5x reply rate</p>
+  <div class="hero-actions">
+    <a href="docs/demo_new.html" class="nav-cta" target="_blank" style="background:linear-gradient(135deg,#7c3aed,#00d4ff);margin-right:0.8rem">Try Demo</a>
+  <a href="https://www.npmjs.com/package/b2btrade-agent" target="_blank" class="btn-primary">npm install -g b2btrade-agent</a>
+    <a href="https://github.com/meo9rhsan3492-cell/b2btrade-agent" target="_blank" class="btn-secondary">Star on GitHub</a>
+  </div>
+  <div class="badges">
+    <a href="https://github.com/meo9rhsan3492-cell/b2btrade-agent/stargazers" target="_blank" class="badge-item">Star on GitHub</a>
+    <a href="docs/demo_new.html" class="nav-cta" target="_blank" style="background:linear-gradient(135deg,#7c3aed,#00d4ff);margin-right:0.8rem">Try Demo</a>
+  <a href="https://www.npmjs.com/package/b2btrade-agent" target="_blank" class="badge-item">npm downloads</a>
+    <span class="badge-item">MIT License</span>
+    <span class="badge-item">19 Expert Agents</span>
+    <span class="badge-item">v1.1.0</span>
+    <span class="badge-item">CRM Built-in</span>
+    <span class="badge-item">Claude + GPT + MiniMax</span>
+  </div>
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="term-dot red"></div><div class="term-dot yellow"></div><div class="term-dot green"></div>
+      <span class="term-title">b2btrade-agent -- bash</span>
+    </div>
+    <div class="terminal-body">
+      <div class="term-line"><span class="term-prompt">$</span><span class="term-cmd">b2b run find-email Saudi Drilling Rig</span></div>
+      <div class="term-output term-success">Searching for target buyers...</div>
+      <div class="term-output term-success">   Found 42 potential buyers</div>
+      <div class="term-output term-success">   Validated 38 email addresses</div>
+      <div class="term-output term-success">   Filtered 15 high-match clients</div>
+      <br>
+      <div class="term-line"><span class="term-prompt">$</span><span class="term-cmd">b2b run outreach 15 --lang en</span></div>
+      <div class="term-output term-success">Generating personalized cold emails...</div>
+      <div class="term-output term-success">   Generated 15 customized emails</div>
+      <div class="term-output term-success">   Saved to ./output/cold-emails.md</div>
+      <br>
+      <div class="term-line"><span class="term-prompt">$</span><span class="term-cmd">b2b chat</span></div>
+      <div class="term-line"><span class="term-prompt">_</span><span class="term-cursor"></span></div>
+    </div>
+  </div>
+  <div class="hero-stats">
+    <div class="hero-stat"><div class="hero-stat-num">30s</div><div class="hero-stat-label">Client Discovery</div></div>
+    <div class="hero-stat"><div class="hero-stat-num">42</div><div class="hero-stat-label">Potential Buyers</div></div>
+    <div class="hero-stat"><div class="hero-stat-num">19</div><div class="hero-stat-label">Expert Agents</div></div>
+    <div class="hero-stat"><div class="hero-stat-num">5x</div><div class="hero-stat-label">Reply Rate Increase</div></div>
+  </div>
+</section>
+<hr class="divider">
+<section id="features">
+  <div class="section-label reveal">-- Pain Points</div>
+  <h2 class="section-title reveal">How much time are you wasting daily?</h2>
+  <p class="section-desc reveal">Manual search, templates, waiting for replies -- AI does all this faster and more accurately.</p>
+  <div class="pain-grid">
+    <div class="pain-card reveal"><span class="pain-icon">X</span><div class="pain-title">Client Discovery</div><div class="pain-desc">Google search, customs data, LinkedIn -- one by one. 2-3 hours, still get inaccurate leads.</div></div>
+    <div class="pain-card reveal"><span class="pain-icon">X</span><div class="pain-title">Cold Emails</div><div class="pain-desc">Written dozens, reply rate still below 2%. Template? Customers see right through it.</div></div>
+    <div class="pain-card reveal"><span class="pain-icon">X</span><div class="pain-title">RFQ Analysis</div><div class="pain-desc">Customer asks one question at a time, no idea of real intent. No confidence in quoting.</div></div>
+    <div class="pain-card reveal"><span class="pain-icon">X</span><div class="pain-title">Market Research</div><div class="pain-desc">What are competitors doing? Price trends? Zero idea. Spent a whole day researching.</div></div>
+  </div>
+</section>
+<div style="max-width:1100px;margin:0 auto;padding:0 2rem">
+  <div class="features-strip reveal">
+    <div class="feature-item"><div class="feature-icon">X</div><div class="feature-name">Multi-Model</div><div class="feature-desc">Claude / GPT / Gemini / MiniMax</div></div>
+    <div class="feature-item"><div class="feature-icon">X</div><div class="feature-name">19 Expert Agents</div><div class="feature-desc">Full foreign trade workflow</div></div>
+    <div class="feature-item"><div class="feature-icon">X</div><div class="feature-name">Local Data</div><div class="feature-desc">API keys stored locally only</div></div>
+    <div class="feature-item"><div class="feature-icon">X</div><div class="feature-name">8 Modules</div><div class="feature-desc">LinkedIn / WhatsApp / Email / Shopify / Ali1688 / TikTok / IG / CRM</div></div>
+    <div class="feature-item"><div class="feature-icon">X</div><div class="feature-name">Workflow Auto</div><div class="feature-desc">One command, complex tasks</div></div>
+  </div>
+</div>
+<hr class="divider">
+<section>
+  <div class="section-label reveal">-- Comparison</div>
+  <h2 class="section-title reveal">B2Btrade Agent vs Traditional</h2>
+  <p class="section-desc reveal">Same work, AI delivers tens of times more efficiency.</p>
+  <div class="compare-wrap reveal">
+    <table class="compare-table">
+      <thead><tr><th>Task</th><th>Traditional</th><th>B2Btrade Agent</th></tr></thead>
+      <tbody>
+        <tr><td>Find clients</td><td style="color:var(--text-dim)">2-3 hours manual</td><td class="new-way">30s, 42 buyers</td></tr>
+        <tr><td>Write emails</td><td style="color:var(--text-dim)">Generic templates</td><td class="new-way">Data-driven, personalized</td></tr>
+        <tr><td>Analyze RFQs</td><td style="color:var(--text-dim)">Guess by experience</td><td class="new-way">AI analysis + quote advice</td></tr>
+        <tr><td>Market research</td><td style="color:var(--text-dim)">Full day</td><td class="new-way">5 minutes, aggregated</td></tr>
+        <tr><td>Multi-platform</td><td style="color:var(--text-dim)">Platform by platform</td><td class="new-way">One command, all platforms</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+<hr class="divider">
+<section id="agents">
+  <div class="section-label reveal">-- Agents</div>
+  <h2 class="section-title reveal">19 Expert Agents -- Full Foreign Trade Coverage</h2>
+  <p class="section-desc reveal">Each agent specializes in one area. Like hiring a 24/7 team of experts.</p>
+  <div class="agents-filter reveal">
+    <button class="filter-btn active" data-filter="all">All</button>
+    <button class="filter-btn" data-filter="outreach">Outreach</button>
+    <button class="filter-btn" data-filter="data">Data</button>
+    <button class="filter-btn" data-filter="ecom">E-commerce</button>
+    <button class="filter-btn" data-filter="ops">Operations</button>
+  </div>
+  <div class="agents-grid">
+    <div class="agent-card" data-cat="outreach"><div class="agent-card-icon">X</div><div class="agent-card-name">LinkedIn Outreach</div><div class="agent-card-desc">Profile scraping + personalized connect requests</div><span class="agent-card-tag">outreach</span></div>
+    <div class="agent-card" data-cat="outreach"><div class="agent-card-icon">X</div><div class="agent-card-name">WhatsApp Outreach</div><div class="agent-card-desc">Multi-language messages (CN/EN/AR/ES/FR)</div><span class="agent-card-tag">outreach</span></div>
+    <div class="agent-card" data-cat="outreach"><div class="agent-card-icon">X</div><div class="agent-card-name">Email Outreach</div><div class="agent-card-desc">Cold/follow-up/quotation emails, HTML</div><span class="agent-card-tag">outreach</span></div>
+    <div class="agent-card" data-cat="data"><div class="agent-card-icon">X</div><div class="agent-card-name">Client Intelligence</div><div class="agent-card-desc">Find buyers, validate emails, match scoring</div><span class="agent-card-tag">data</span></div>
+    <div class="agent-card" data-cat="data"><div class="agent-card-icon">X</div><div class="agent-card-name">Market Research</div><div class="agent-card-desc">Competitor monitoring, trends, pricing</div><span class="agent-card-tag">data</span></div>
+    <div class="agent-card" data-cat="ecom"><div class="agent-card-icon">X</div><div class="agent-card-name">Shopify Agent</div><div class="agent-card-desc">Order processing, shipping, inquiries</div><span class="agent-card-tag">ecom</span></div>
+    <div class="agent-card" data-cat="ecom"><div class="agent-card-icon">X</div><div class="agent-card-name">Ali1688 Agent</div><div class="agent-card-desc">Product search, supplier info, price compare</div><span class="agent-card-tag">ecom</span></div>
+    <div class="agent-card" data-cat="ecom"><div class="agent-card-icon">X</div><div class="agent-card-name">TikTok Agent</div><div class="agent-card-desc">Product listings, orders, descriptions</div><span class="agent-card-tag">ecom</span></div>
+    <div class="agent-card" data-cat="ecom"><div class="agent-card-icon">X</div><div class="agent-card-name">Instagram Agent</div><div class="agent-card-desc">Profile data, image captions, ad copy</div><span class="agent-card-tag">ecom</span></div>
+    <div class="agent-card" data-cat="ops"><div class="agent-card-icon">X</div><div class="agent-card-name">Logistics Expert</div><div class="agent-card-desc">Freight comparison, sea/air shipping</div><span class="agent-card-tag">ops</span></div>
+    <div class="agent-card" data-cat="ops"><div class="agent-card-icon">X</div><div class="agent-card-name">Customs Advisor</div><div class="agent-card-desc">HS codes, tax refunds, trade terms</div><span class="agent-card-tag">ops</span></div>
+    <div class="agent-card" data-cat="ops"><div class="agent-card-icon">X</div><div class="agent-card-name">Negotiation Expert</div><div class="agent-card-desc">Price negotiation, contracts, risk</div><span class="agent-card-tag">ops</span></div>
+    <div class="agent-card" data-cat="data"><div class="agent-card-icon">X</div><div class="agent-card-name">Sales Analytics</div><div class="agent-card-desc">Performance, client tiering, ROI</div><span class="agent-card-tag">data</span></div>
+    <div class="agent-card" data-cat="ops"><div class="agent-card-icon">X</div><div class="agent-card-name">Finance Advisor</div><div class="agent-card-desc">FX settlement, L/C, payment security</div><span class="agent-card-tag">ops</span></div>
+    <div class="agent-card" data-cat="data"><div class="agent-card-icon">X</div><div class="agent-card-name">SEO Expert</div><div class="agent-card-desc">Keywords, competitor analysis, ranking</div><span class="agent-card-tag">data</span></div>
+    <div class="agent-card" data-cat="data"><div class="agent-card-icon">X</div><div class="agent-card-name">Growth Hacker</div><div class="agent-card-desc">Google Ads, trade shows, channels</div><span class="agent-card-tag">data</span></div>
+    <div class="agent-card" data-cat="ops"><div class="agent-card-icon">X</div><div class="agent-card-name">Customer Support</div><div class="agent-card-desc">Follow-up, re-purchase, maintenance</div><span class="agent-card-tag">ops</span></div>
+    <div class="agent-card" data-cat="data"><div class="agent-card-icon">X</div><div class="agent-card-name">Content Creator</div><div class="agent-card-desc">Emails, LinkedIn posts, product copy</div><span class="agent-card-tag">data</span></div>
+    <div class="agent-card" data-cat="data"><div class="agent-card-icon">X</div><div class="agent-card-name">Social Media</div><div class="agent-card-desc">LinkedIn, Facebook, communities</div><span class="agent-card-tag">data</span></div>
+    <div class="agent-card" data-cat="ops"><div class="agent-card-icon">X</div><div class="agent-card-name">RFQ Expert</div><div class="agent-card-desc">Inquiry analysis, pricing strategy</div><span class="agent-card-tag">ops</span></div>
+    <div class="agent-card" data-cat="ops"><div class="agent-card-icon">X</div><div class="agent-card-name">Procurement</div><div class="agent-card-desc">Supplier evaluation, cost optimization</div><span class="agent-card-tag">ops</span></div>
+  </div>
+</section>
+<hr class="divider">
+<section id="testimonials">
+  <div class="section-label reveal">-- Testimonials</div>
+  <h2 class="section-title reveal">What users are saying</h2>
+  <div class="testimonials">
+    <div class="testimonial reveal"><div class="testimonial-text">"Found 42 drilling rig buyers in Saudi in 30 seconds. Reply rate jumped from 2% to 11%."</div><div class="testimonial-author"><div class="testimonial-avatar">JW</div><div><div class="testimonial-name">J.W.</div><div class="testimonial-role">Export Manager, Heavy Machinery</div></div></div></div>
+    <div class="testimonial reveal"><div class="testimonial-text">"The Ali1688 agent saved me hours every week. Direct supplier comparison with price intelligence built in."</div><div class="testimonial-author"><div class="testimonial-avatar">MK</div><div><div class="testimonial-name">M.K.</div><div class="testimonial-role">Procurement Lead, Electronics</div></div></div></div>
+    <div class="testimonial reveal"><div class="testimonial-text">"21 agents covering everything from logistics to negotiation. This is what a real AI teammate looks like."</div><div class="testimonial-author"><div class="testimonial-avatar">SL</div><div><div class="testimonial-name">S.L.</div><div class="testimonial-role">Founder, Trading Company</div></div></div></div>
+  </div>
+</section>
+<hr class="divider">
+<section id="how">
+  <div class="section-label reveal">-- Quick Start</div>
+  <h2 class="section-title reveal">3 Steps to Start</h2>
+  <p class="section-desc reveal">Install and configure in 2 minutes, then use anytime.</p>
+  <div class="steps">
+    <div class="step reveal"><div class="step-num">01</div><h3>Install</h3><p>Requires Node.js 18+, one command to install.</p><code>npm install -g b2btrade-agent</code></div>
+    <div class="step reveal"><div class="step-num">02</div><h3>Configure</h3><p>First run prompts for API Key. Supports Claude/GPT/MiniMax.</p><code>b2b config</code></div>
+    <div class="step reveal"><div class="step-num">03</div><h3>Run</h3><p>Describe your needs in natural language, AI executes.</p><code>b2b chat</code></div>
+  </div>
+</section>
+<div class="cta-section">
+  <h2>Ready to 10x Your B2B Workflow?</h2>
+  <p>Join exporters who are saving 3+ hours every day with AI automation.</p>
+  <a href="docs/demo_new.html" class="nav-cta" target="_blank" style="background:linear-gradient(135deg,#7c3aed,#00d4ff);margin-right:0.8rem">Try Demo</a>
+  <a href="https://www.npmjs.com/package/b2btrade-agent" target="_blank" class="btn-primary" style="font-size:1.1rem;padding:1rem 2.5rem">npm install -g b2btrade-agent</a>
+</div>
+<footer>
+  <div class="footer-brand">B2Btrade_Agent</div>
+  <div class="footer-links">
+    <a href="https://github.com/meo9rhsan3492-cell/b2btrade-agent" target="_blank">GitHub</a>
+    <a href="docs/demo_new.html" class="nav-cta" target="_blank" style="background:linear-gradient(135deg,#7c3aed,#00d4ff);margin-right:0.8rem">Try Demo</a>
+  <a href="https://www.npmjs.com/package/b2btrade-agent" target="_blank">npm</a>
+    <a href="https://github.com/meo9rhsan3492-cell/b2btrade-agent#readme" target="_blank">Docs</a>
+  </div>
+  <div class="footer-copy">MIT License - 2026</div>
+</footer>
+<script>
+(function(){
+  var cursor = document.getElementById('cursor');
+  if(!cursor) return;
+  var mx=0,my=0,cx=0,cy=0;
+  document.addEventListener('mousemove',function(e){mx=e.clientX;my=e.clientY;});
+  function loop(){cx+=(mx-cx)*0.55;cy+=(my-cy)*0.55;cursor.style.left=cx+'px';cursor.style.top=cy+'px';requestAnimationFrame(loop);}
+  loop();
+  document.addEventListener('mousedown',function(e){
+    var ring=document.createElement('div');
+    ring.style.cssText='position:fixed;width:40px;height:40px;border-radius:50%;border:2px solid rgba(0,212,255,0.8);pointer-events:none;z-index:9998;transform:translate(-50%,-50%) scale(0);opacity:1;transition:transform 0.4s ease-out,opacity 0.4s ease-out';
+    ring.style.left=e.clientX+'px';ring.style.top=e.clientY+'px';
+    document.body.appendChild(ring);
+    requestAnimationFrame(function(){ring.style.transform='translate(-50%,-50%) scale(1.5)';ring.style.opacity='0'});
+    setTimeout(function(){ring.remove()},400);
+  });
+})();
+(function(){
+  var obs=new IntersectionObserver(function(entries){
+    entries.forEach(function(e,i){
+      if(e.isIntersecting){setTimeout(function(){e.target.classList.add('visible')},i*80);obs.unobserve(e.target)}
+    });
+  },{threshold:0.1});
+  document.querySelectorAll('.reveal').forEach(function(el){obs.observe(el)});
+})();
+(function(){
+  document.querySelectorAll('.filter-btn').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      document.querySelectorAll('.filter-btn').forEach(function(b){b.classList.remove('active')});
+      btn.classList.add('active');
+      var f=btn.dataset.filter;
+      document.querySelectorAll('.agent-card').forEach(function(card){
+        card.classList.toggle('hidden',f!=='all'&&card.dataset.cat!==f);
+      });
+    });
+  });
+})();
+</script>
+</body>
+</html>
