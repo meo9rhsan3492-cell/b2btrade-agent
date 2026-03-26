@@ -190,7 +190,7 @@ async function main() {
       break;
 
     case 'demo':
-      await runDemo(args.slice(1));
+      await runDemoInteractive(args.slice(1));
       break;
 
     default:
@@ -363,7 +363,30 @@ async function runWorkflow(wfId, params) {
   }
 }
 
-// ===== Demo 模式（无需 API Key）=====
+// ===== Demo 模式（无需 API Key，可交互选择）=====
+async function runDemoInteractive(args) {
+  if (args[0] && ['1','2','3','4','5'].includes(args[0])) {
+    await runDemo(args);
+    return;
+  }
+  await runDemo(['menu']);
+  const rl = await import('readline');
+  const intf = rl.createInterface({ input: process.stdin, output: process.stdout });
+  const answer = await new Promise(resolve => { intf.question('\n请输入数字选择 (1-5, 0退出): ', resolve); });
+  intf.close();
+  const choice = (answer || '').trim();
+  if (choice === '0' || choice === '') {
+    console.log(chalk.gray('\n演示结束。了解更多: b2b --help\n'));
+    return;
+  }
+  if (['1','2','3','4','5'].includes(choice)) {
+    await runDemo([choice]);
+  } else {
+    console.log(chalk.red('\n无效选择，请输入 1-5\n'));
+    await runDemoInteractive([]);
+  }
+}
+
 async function runDemo(args) {
   const config = loadConfig();
   const hasApiKey = config.apiKey && config.apiKey.length > 5;
@@ -379,14 +402,14 @@ async function runDemo(args) {
 
   switch (demoScenario) {
     case 'menu':
-      console.log(chalk.cyan('\n选择一个场景体验：\n'));
+      console.log(chalk.cyan('\n选择一个场景体验（直接输入数字并回车）：\n'));
       console.log(`  ${chalk.green('1')}  客户挖掘 → 开发信（全流程）`);
       console.log(`  ${chalk.green('2')}  询盘分析 → 报价单`);
       console.log(`  ${chalk.green('3')}  展会线索管理`);
       console.log('  ' + chalk.green('4') + '   CRM 客户仪表盘');
       console.log('  ' + chalk.green('5') + '   HS编码查询');
       console.log('  ' + chalk.green('0') + '   退出');
-      console.log(chalk.gray('  用法: b2b demo <1-5>\n'));
+      console.log(chalk.gray('  直接输入数字并回车，或命令行: b2b demo 1\n'));
       if (!hasApiKey) {
         console.log(chalk.yellow('  ⚠️  未配置 API Key，部分 AI 生成功能不可用\n'));
       } else {
