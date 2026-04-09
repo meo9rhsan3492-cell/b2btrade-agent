@@ -177,6 +177,32 @@ async function main() {
       showStatus();
       break;
 
+    case 'inquiry':
+    case 'classify':
+      const { inquiryIntelAgent } = await import('./agents/inquiry-intel-agent.js');
+      await inquiryIntelAgent.run(args.slice(1));
+      break;
+
+    case 'reply':
+      const { replyAgent } = await import('./agents/reply-agent.js');
+      await replyAgent.run(args.slice(1));
+      break;
+
+    case 'followup':
+      const { followupAgent } = await import('./agents/followup-agent.js');
+      await followupAgent.run(args.slice(1));
+      break;
+
+    case 'linkedin':
+      const { linkedinAgent } = await import('./agents/linkedin-agent.js');
+      await linkedinAgent.run(args.slice(1));
+      break;
+
+    case 'pipeline':
+      const { pipelineAgent } = await import('./agents/pipeline-agent.js');
+      await pipelineAgent.run(args.slice(1));
+      break;
+
     case 'crm':
       await runCRM(args.slice(1));
       break;

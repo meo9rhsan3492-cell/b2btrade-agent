@@ -608,6 +608,47 @@ export const agents = {
 - 付款方式
 - 包装和运输方式`,
     module: () => import('./email-agent.js')
+  },
+
+  // LLM Agent 增强系统
+  'inquiry-intel': {
+    id: 'inquiry-intel',
+    name: '🔍 询盘情报员',
+    role: '询盘智能分类与分析',
+    description: '分析询盘质量，过滤垃圾，分流高价值客户',
+    module: () => import('./inquiry-intel-agent.js')
+  },
+
+  reply: {
+    id: 'reply',
+    name: '📧 回复专家',
+    role: '个性化邮件生成',
+    description: '根据询盘分类结果生成个性化回复邮件',
+    module: () => import('./reply-agent.js')
+  },
+
+  followup: {
+    id: 'followup',
+    name: '📆 跟进管家',
+    role: '跟进序列管理',
+    description: '自动生成和管理询盘跟进计划',
+    module: () => import('./followup-agent.js')
+  },
+
+  linkedin: {
+    id: 'linkedin',
+    name: '💼 LinkedIn外展',
+    role: '智能LinkedIn外展',
+    description: '精准LinkedIn决策者外展',
+    module: () => import('./linkedin-agent.js')
+  },
+
+  pipeline: {
+    id: 'pipeline',
+    name: '🚀 Pipeline',
+    role: '一键工作流编排',
+    description: '串联 分类→邮件→跟进 全流程',
+    module: () => import('./pipeline-agent.js')
   }
 };
 
