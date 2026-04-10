@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>B2Btrade Agent 控制台</title>
+  <link rel="stylesheet" href="/web-ui.css">
+</head>
+<body>
+
+<header>
+  <div class="logo">🤖 B2Btrade Agent</div>
+  <div class="header-meta">v1.0 · AI 外贸自动化</div>
+</header>
+
+<main>
+
+  <!-- 状态 -->
+  <div class="card">
+    <div class="card-title">📡 当前状态</div>
+    <div class="status-bar">
+      <div class="status-item"><div class="status-dot" id="s-cli"></div>CLI 已安装</div>
+      <div class="status-item"><div class="status-dot warn" id="s-api"></div>API 配置</div>
+      <div class="status-item" id="s-model">模型: 未知</div>
+      <div class="status-item" id="s-locale">语言: zh</div>
+    </div>
+  </div>
+
+  <!-- 提示 -->
+  <div id="tip" class="tip" style="display:none"></div>
+
+  <!-- 快捷操作 -->
+  <div class="card">
+    <div class="card-title">🚀 快捷操作</div>
+    <div class="quick-grid">
+      <button class="action-btn" onclick="runPreset('status', '查看状态')">📊 查看状态</button>
+      <button class="action-btn" onclick="runPreset('crm', 'CRM管理')">👥 CRM 管理</button>
+      <button class="action-btn" onclick="runPreset('findemail', '挖掘邮箱')">📧 挖掘邮箱</button>
+      <button class="action-btn" onclick="runPreset('config', '配置')">⚙️ 配置</button>
+      <button class="action-btn" onclick="runPreset('chat', '对话')">💬 对话模式</button>
+      <button class="action-btn" onclick="runPreset('sequence', '邮件序列')">📬 邮件序列</button>
+    </div>
+  </div>
+
+  <!-- 竞品调研 -->
+  <div class="card">
+    <div class="card-title">🔍 竞品调研</div>
+    <div class="input-row">
+      <input class="text-input" id="competitor-input" placeholder="输入竞品名称，如：三一重工 钻机">
+      <button class="run-btn" onclick="runCompetitor()">▶ 调研</button>
+    </div>
+    <div class="hint">命令示例：b2b run competitor 三一重工</div>
+  </div>
+
+  <!-- 客户搜索 -->
+  <div class="card">
+    <div class="card-title">🌐 客户搜索</div>
+    <div class="input-row">
+      <input class="text-input" id="search-input" placeholder="输入关键词，如：沙特 钻机 买家">
+      <button class="run-btn" onclick="runSearch()">▶ 搜索</button>
+    </div>
+    <div class="hint">命令示例：b2b search 沙特 钻机</div>
+  </div>
+
+  <!-- 市场调研 -->
+  <div class="card">
+    <div class="card-title">📈 市场调研</div>
+    <div class="input-row">
+      <input class="text-input" id="market-input" placeholder="输入产品/市场，如：中东 工程机械">
+      <button class="run-btn" onclick="runMarket()">▶ 调研</button>
+    </div>
+    <div class="hint">命令示例：b2b run market-research 中东 工程机械</div>
+  </div>
+
+  <!-- 自定义命令 -->
+  <div class="card">
+    <div class="card-title">⌨️ 自定义命令</div>
+    <div class="input-row">
+      <input class="text-input" id="custom-cmd" placeholder="输入命令，如：run find-email">
+      <button class="run-btn" onclick="runCustom()">▶ 执行</button>
+    </div>
+    <div class="hint">可用：status / search 关键词 / run find-email / run competitor 公司 / crm / chat / config</div>
+  </div>
+
+  <!-- 输出 -->
+  <div class="card">
+    <div class="output-header">
+      <div class="card-title" style="margin-bottom:0">📋 输出结果</div>
+      <button class="clear-btn" onclick="clearOutput()">清空</button>
+    </div>
+    <div id="output" class="output">
+      <div class="placeholder">点击上方按钮，结果将显示在这里</div>
+    </div>
+  </div>
+
+</main>
+
+<script src="/web-ui.js"></script>
+<script>
+// 页面加载时自动获取状态
+window.addEventListener('DOMContentLoaded', () => {
+  // 立即显示 CLI 已安装
+  const sCli = document.getElementById('s-cli');
+  if (sCli) { sCli.className = 'status-dot'; }
+  // 异步获取详细状态
+  runPreset('status', '获取状态');
+});
+</script>
+</body>
+</html>
